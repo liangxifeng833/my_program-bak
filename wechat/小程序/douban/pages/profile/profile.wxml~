@@ -1,0 +1,2 @@
+<view>我自己的页面</view>
+<button bindtap="back">返回</button>

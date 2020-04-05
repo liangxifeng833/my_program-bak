@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html;  charset=utf-8" />
+<title>正则表达式的学习</title>
+<body>
+<script type="text/javascript">
+/***********************************************************************************
+  使用正则表达式的test和exex方式匹配
+/**********************************************************************************/
+
+//1.创建正则的第一种方式, 使用new关键字
+    var box = new RegExp('Box', 'gim');//第一个参数是模式字符串必选, 第二个参数igm, i不区分大小写, g全局匹配, m多行匹配 
+    console.log(box); //输出:/Box/gim, 就是字面量方式创建正则
+//2.创建正则的第二种方式, 使用字面量(常用方式)
+    var box = /Box/gim; 
+    console.log(box); 
+//3.test()方法, 返回boolean, 匹配成功返回true, 失败返回false
+    var pattern = /Box/gi; 
+    console.log(pattern.test('this is a box')); //输出:true
+//4.exec()方法, 返回值是数组, 匹配成功返回数组的值, 失败返回null
+    var pattern = /Box/gi; 
+    console.log(pattern.exec('this is a Box')); //输出:["Box",  index: 10,  input: "this is a Box"]
+    console.log(pattern.exec('this is a aox')); //输出:null
+
+/***********************************************************************************
+ 使用字符串方式匹配正则
+/**********************************************************************************/
+//5.match()方法, 匹配成功返回匹配成功的数组, 匹配失败返回null
+    var pattern = /Box/i; //非全局匹配
+    var str = 'this is a box! that is a Box'; 
+    console.log(str.match(pattern)); //输出:["box",  index: 10,  input: "this is a box! that is a Box"]
+    var pattern = /Box/ig; //全局匹配
+    var str = 'this is a box! that is a Box'; 
+    console.log(str.match(pattern)); //输出: ["box",  "Box"]
+//6.search()方法, 匹配成功返回索引位置, 失败返回-1, 注意:无需全局匹配
+    var pattern = /Box/i; 
+    var str = 'this is a box'; 
+    console.log(str.search(pattern)); //输出:10
+//7.replace()方法, 匹配后替换所匹配的值, 返回替换后的字符串
+    var pattern = /Box/ig; //全局匹配, 如果不加g不是全局匹配, 则只替换第一个box
+    var str = 'this is a box! that is a Box'; 
+    console.log(str.replace(pattern, 'Jim')); //输出:this is a Jim! that is a Jim
+//8.split()方法, 把一个字符串通过正则拆分为一个数组
+    var pattern = / /ig; //全局匹配, 通过空格拆分
+    var str = 'this is a box! that is a Box!'; 
+    console.log(str.split(pattern)); //输出:["this",  "is",  "a",  "box!",  "that",  "is",  "a",  "Box!"]
+
+/***********************************************************************************
+ 静态属性, 这些属性作用不是很大, 浏览器兼容性不是很好
+/**********************************************************************************/
+//9.input, 当前被匹配的字符串
+    var pattern = /google/i; 
+    var str = 'this is a google! that is a google!'; 
+    pattern.test(str); //必须先执行一下, 静态属性才有效
+    console.log(RegExp.input); //输出:this is a google! that is a google!
+//10.leftContext, 最后匹配字符串的左子串
+    console.log(RegExp.leftContext); //输出:this is a 
+//11.rightContext, 最后匹配字符串的右子串
+    console.log(RegExp.rightContext); //输出:! that is a google!
+//12.lastMatch, 最后匹配的字符串
+    console.log(RegExp.lastMatch); //输出:google
+//13.lastParen, 最后一对圆括号内的匹配子串
+    console.log(RegExp.lastParen);
+
+/***********************************************************************************
+ 操作符的使用
+/**********************************************************************************/
+//14.点符号表示匹配除了换行符外的任意一个字符
+    var pattern = /g.gle/; 
+    var str = 'google'; 
+    console.log(pattern.test(str)); //匹配失败
+//15.星号,表示匹配前面字符的0个, 1个, 或多个字符
+    var pattern = /go*gle/; //o*, 表示0个, 1个或多个o
+//16.加号,表示匹配前面字符的1个, 或多个字符
+    var pattern = /go+gle/; //o+, 表示1个或多个o
+//17.问号,表示匹配前面字符的1个, 或0个
+    var pattern = /go?gle/; //o?, 表示1个或0个o
+//18.表示一个或者零个的任意字符
+    var pattern = /g.?gle/; //.? 表示1个或者0个的任意字符
+//19.区间匹配
+    var pattern = /go{2,4}gle/; //o{2, 4} 表示匹配o2-4次, 包含2和4
+    var pattern = /go{3}gle/; //o{3} 表示只能匹配o 3次
+    var pattern = /go{3, }gle/; //o{3, } 表示匹配o  >=3次
+    var pattern = /[a, z]google/; //[a,z] 表示26个小写字母(大写同理), 任意一个都可以匹配[0-9]也是同理
+    var pattern = /[a-zA-Z0-9]google/; //[a-zA-Z0-9] 表示大小写a-zA-Z0-9
+    var pattern = /[^a-zA-Z0-9]google/; //[^a-zA-Z0-9] 表示非大小写a-zA-Z0-9
+    var str = 'google'; 
+    console.log(pattern.test(str)); //匹配成功
+//20.锚元字符匹配
+    var pattern = /^[a, z]google/; //^[a,z] ^代表行首
+    var pattern = /^[a, z]google$/; //$代表行尾
+    var pattern = /\wgoogle/; //\w表示 [a-zA-Z0-9_]
+    var pattern = /\Wgoogle/; //\W表示 [^a-zA-Z0-9_]
+    var pattern = /\dgoogle/; //\d表示 [0-9]
+    var pattern = /\Dgoogle/; //\D表示 [^0-9]
+//21.空格匹配
+    var pattern = /goo\sgle/;  //\s标识空格
+//22.边界匹配
+    var pattern = /google\b/;  //\b标识空格
+    var str = 'google'; 
+    console.log(pattern.test(str)); 
+//23.匹配或选择模式
+    var pattern = /google\b|baidu|soso/;  //匹配 google或 baidu 或 soso
+    var str = 'soso'; 
+    console.log(pattern.test(str)); 
+//24.分组模式匹配 ()
+    var pattern = /google{4,8}/;  //标识匹配e的4到8次
+    var str = 'googleeeeeeeeeeeeee'; 
+    console.log(pattern.test(str)+'111'); 
+
+    var pattern = /(google){4,8}/;  //标识匹配google的4到8次
+    var str = 'googlegooglegooglegoogle'; 
+    console.log(pattern.test(str)+'111'); 
+
+    var pattern = /8(.*)8/; 
+    var str = 'this is a 8googles8'; 
+    pattern.test(str); 
+    console.log(RegExp.$1); //输出:googles$1获取第一个分组匹配的字符串信息
+
+    var pattern = /8(.*)8/; 
+    var str = 'this is a 8googles8'; 
+    console.log(str.replace(pattern, '<strong>$1</strong>'));  //输出this is a <strong>googles</strong></strong>
+
+//25.贪婪匹配
+    var pattern = /[a-z]+/;  
+    var str = 'helloworld'; 
+    console.log(str.replace(pattern, '1')); //输出:1, 所有字符都变成了1
+//26.惰性匹配
+    var pattern = /[a-z]+?/;  
+    var str = 'helloworld'; 
+    console.log(str.replace(pattern, '1')); //输出:1elloworld, 只有第一个字符变成了1
+
+    var pattern = /8(.*)8/; 
+    var str = '8google 8google8 8google8'; 
+    console.log(str.replace(pattern, '<strong>$1</strong>')); //输出:<strong>google 8google8 google</strong></strong>
+
+    var pattern = /8(.*?)8/; 
+    var str = '8google8 8google8 8google8'; 
+    console.log(str.replace(pattern, '<strong>$1</strong>')); //输出:<strong>google</strong> 8google8 8google8</strong>
+
+    var pattern = /8(.*?)8/g; 
+    var str = '8google8 8google8 8google8'; 
+    console.log(str.replace(pattern, '<strong>$1</strong>')); //输出:<strong>google</strong> <strong>google</strong> <strong>google</strong>
+
+//27.exec()匹配后返回数组
+    var pattern = /[a-z]+\s[0-9]{4}/; 
+    var str = 'google 2016'; 
+    console.log(pattern.exec(str)); //输出:["google 2016",  index: 0,  input: "google 2016"]
+
+    var pattern = /([a-z]+)\s([0-9]{4})/; 
+    var str = 'google 2016'; 
+    console.log(pattern.exec(str)); //输出:["google 2016",  "google",  "2016",  index: 0,  input: "google 2016"]
+//28.捕获性分组, 所有分组都捕获返回
+    var pattern = /(\d+)([a-z])/; 
+    var str = '123abcdef'; 
+    console.log(pattern.exec(str)); //输出:["123a",  "123",  "a",  index: 0,  input: "123abcdef"]
+
+//28.非捕获性分组, 只要在不需要捕获返回的分组上加上 ?:
+    var pattern = /(\d+)(?:[a-z])/; 
+    var str = '123abcdef'; 
+    console.log(pattern.exec(str)); //输出:["123a",  "123",  index: 0,  input: "123abcdef"]
+//29.嵌套分组匹配, 从外向内获取
+    var pattern = /(a?(b?(c?)))/; 
+    var str = 'abc'; 
+    console.log(pattern.exec(str)); //["abc",  "abc",  "bc",  "c",  index: 0,  input: "abc"]
+    //第一步:[0], 整个匹配到的字符串abc
+    //第二步:[1], 整个第一个分组(a?(b?(c?))), abc
+    //第三步:[2], 整个第二个分组(b?(c?)), bc
+    //第四步:[3], 整个第三个分组(c?), c
+//30.前詹性匹配
+    var pattern = /goo(?=gle)/;//goo后面必须是gle才返回goo, 这里返回的是goo, 而不是google
+    var str = 'google'; 
+    console.log(pattern.exec(str)); //输出:["goo",  index: 0,  input: "google"]
+//31.特殊字符匹配, 需要用\符号来转义正则里的特殊字符
+    var pattern = /\[/; 
+    var str = 'abc[def'; 
+    console.log(pattern.exec(str)); 
+//32.换行匹配
+    var pattern = /^\d+/gm; //限定了首匹配, 并且开启换行模式
+    var str = '1.baidu\n2.google\n3.bing'; 
+    console.log(str.replace(pattern, '#')); 
+    //以上输出为:
+    /*
+    #.baidu
+    #.google
+    #.bing
+    */
+
+//33.常用正则, 压缩文件名
+    var pattern = /^[\w-]+\.zip|gz|rar/; 
+    var str = '12.zip'; 
+    console.log(pattern.exec(str)); 
+//34.常用正则, 删除多余空格
+    var pattern = /\s/g; 
+    var str = ' 111 222  333 555'; 
+    console.log(str.replace(pattern, '')); 
+//35.常用正则, 删除首尾空格
+    var pattern = /^\s+(.+?)\s+$/; 
+    var str = '    goo   gle      '; 
+    var res = pattern.exec(str)[1]; 
+    console.log('|'+str.replace(pattern, '$1')+'|'); //输出:|goo   gle|
+    console.log('|'+res+'|'); //输出:|goo   gle|
+//36.常用正则, 邮箱
+    var pattern = /^([\w\.]+)@(\w)\.([a-zA-Z]{2, 4})$/
+
+
+</script>
+</body>
+</html>
+
+
+

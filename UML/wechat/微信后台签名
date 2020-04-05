@@ -1,0 +1,41 @@
+@startuml
+title 微信签名 ( 在微信后台保存地址时触发 )
+
+actor 微信后台 #red
+/'-------------定义参与者别名 -------------------'/
+participant "wechatIndex\n微信对外接口C" as index #00FF00
+微信后台->index: index()
+== 注意：以下所有流程都是在__construct()方法中执行， index()只是入口 ==
+activate index
+	/'构造方法调用父类的构造器'/
+	participant "wechatAbstract\n微信接口抽象C" as A #ADD8E6
+	index->A:parent::__contruct()
+	activate A
+	
+		/'调用父类初始化方法'/
+		participant "wechatSignature\n微信签名类L" as sign #FFFFFF
+		A->A:_init()
+		activate A
+			/'签名操作'/
+			alt 1==isSignture(签名)
+				A->sign:__construct()
+				activate sign
+					sign->sign:valid()
+					activate sign				
+						note over sign
+							if(this.checkSignature()) 
+							 echo $_GET['echostr'] ; exit;
+						end note	
+						sign-->微信后台:echo $_GET['echostr']; exit; "<font color=red ><b> 注意这里一定要有exit"
+					deactivate sign
+				deactivate sign
+			else 请求信息
+				A->A:_parseXmlToObj()\n将用户的xml信息解析为对象\n并将赋值给this.userMsgObj
+				activate A
+				deactivate A
+			end
+		deactivate A
+		
+	deactivate A
+deactivate index
+@enduml

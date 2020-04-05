@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html;  charset=utf-8" />
+<title>事件绑定及深入1</title>
+<style type="text/css">
+.red{width:200px; height:200px; background:red; }
+.blue{width:200px; height:200px; background:blue; }
+</style>
+<body onunload="alert('The onunload event was triggered')">
+<script type="text/javascript">
+/*********************************************************************************
+  如果一个页面同时出现两个或以上window.load，程序会就近原则执行
+  不过可以有办法解决的
+ *********************************************************************************/
+    /*
+    var saved = null; 
+    window.onload = function(){
+        console.log('one onload'); 
+    }
+    if (typeof window.onload == 'function')
+    {
+        saved = window.onload; 
+    }
+    window.onload = function(){
+        //执行以上onlad内容
+        if(saved) saved(); 
+        console.log('two onload'); 
+    }
+    */
+
+/*********************************************************************************
+  事件切换器
+ *********************************************************************************/
+    /*
+    window.onload=function(){
+        var box = document.getElementById('box'); 
+        box.onclick=toBule; 
+    }; 
+
+    //如果toBule绑定了box.onclick,则里面this代表box
+    //如果是全局执行this代表window
+    function toBule()
+    {
+        this.className = 'blue'; 
+        this.onclick=toRed; 
+    }
+    function toRed()
+    {
+        this.className = 'red'; 
+        this.onclick=toBule; 
+    }
+    */
+
+/*********************************************************************************
+ 添加事件函数
+ *********************************************************************************/
+    /*
+     * @param obj相当于window
+     * @param type相当于load
+     * @param fn相当于匿名函数function(){}
+     */
+    function addEvent(obj, type, fn)
+    {
+        //用于保存上一个事件
+        var saved = null; 
+        //判断事件是否存在
+        if(typeof obj['on'+type] == 'function')
+        {
+            //保存上一个事件
+            saved = obj['on'+type]; 
+        }
+        //执行事件
+        obj['on'+type]=function(){
+            if(saved) saved(); 
+            fn.call(this); //将this传递过去, onclick事件绑定会自动将this传递给调用函数
+        }
+    }
+    /*
+     * 移除事件函数
+     */
+    function removeEvent(obj, type)
+    {
+        if(obj['on'+type]) obj['on'+type] = null; 
+    }
+    addEvent(window, 'load', function(){
+        console.log('first onload'); 
+    }); 
+    addEvent(window, 'load', function(){
+        console.log('second onload'); 
+    }); 
+    addEvent(window, 'load', function(){
+            var box = document.getElementById('box'); 
+            addEvent(box, 'click', toBule); 
+    }); 
+    function toBule()
+    {
+        this.className = 'blue'; 
+        //用完就移除，否则会保递归超限错误
+        removeEvent(this, 'click'); 
+        addEvent(this,'click',toRed); 
+    }
+    function toRed()
+    {
+        this.className = 'red'; 
+        removeEvent(this, 'click'); 
+        addEvent(this,'click',toBule); 
+    }
+
+</script>
+<div class="red" id="box">测试DIV</div>
+</body>
+</html>

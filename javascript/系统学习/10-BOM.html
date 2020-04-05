@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html;  charset=utf-8" />
+<title>浏览器对象模型BOM</title>
+<body>
+<script type="text/javascript">
+/*********************************************************************************
+ * 浏览器对象模型
+ * BOM：没有标准，各个浏览器厂商都对它进行扩展
+ * 1．window对象是最顶层的对象
+ * 2．window对象有６大属性，６大属性本身也是对象
+ * 3．window对象旗下的document属性，也是对象，并且document对象旗下有５大属性
+ * 4.document对象旗下的５大属性也是对象, 总结：都是对象
+ * 调用:
+ * window.属性，　window.方法(), 也可以直接　属性, 方法()
+ * 注意：如果是某个浏览器独有的属性和方法，其他浏览器会不识别
+ *********************************************************************************/
+
+
+//所有浏览器都支持的属性和方法,所有浏览器都认识，所以可以不用加window
+//1.window.alert(12); 
+//2.window.confirm(); //本身方法可以返回一个boolean值，点击确定返回true, 点击取消返回false
+/*
+var box = window.prompt('请输入一个数字', 0); //返回输入的值
+if(box!=null)
+{
+    alert(box)
+}
+*/
+//3.window.print();  //打印
+
+/*
+4.状态栏
+   旧版本火狐有状态栏，新版本火狐没有
+   google没有状态栏
+   IE有状态栏, (左下角)
+ */
+
+/*
+5.新建窗口
+  window.open()
+  第一个参数：要加载的url
+  第二个参数：窗口的名称或窗口目标, 
+              (1)命名可以给新窗口定义一个名称，凡是以这个名称打开的窗口都在这个窗口内加载url
+              (2)目标：_blank, _parent
+                  _blank:新建一个窗口
+                  _parent:在本窗口内加载
+              
+  第三个参数：一个特定字符串, 表示各种窗口配置的功能
+              注意：第三个参数各个浏览器解析不同，不建议使用
+  第四个参数：一个表示新页面是否取代浏览器记录中当前加载页面的布尔值
+ */
+//window.open('http://www.baidu.com');//新建并打开百度 
+//window.open('http://www.baidu.com', 'baidu');//新建并打开百度 , 并给新窗口命名为baidu
+//window.open('http://www.ljlj.cc', 'baidu');//新建并打开蓝景，并在名称为baidu的窗口加载www.ljlj.cc 
+//window.open('http://www.baidu.com', '_blank');//新建并打开百度 
+//window.open('http://www.baidu.com', '_parent');//在当前窗口打开百度 
+//window.open('http://www.baidu.com', '_blank', 'width:100, height:100,top:300, left:300');//在新窗口打开百度 
+
+//var box = window.open('http://www.baidu.com');//在当前窗口打开百度 
+//alert('hello'); //这里的alert其实是window.alert, 表示的是父窗口
+//open本身会返回子窗口的window对象，所以下面的表示子窗口弹出hello-new
+//box.alert('hello-new'); //这里的alert
+
+//opener操作父窗口dom，各个浏览器解析不一样
+//window.open('opener.html'); 
+//在opener.html中使用window.opener.document.write('子窗口让我输出一行字');  
+
+//5.窗口的位置,注意使用是最好加上window.否则在火狐下会出错
+    console.log(window.screenLeft); //0, 浏览器窗口相对于电脑屏幕左边的距离, 火狐不支持
+    console.log(window.screenTop);  //24, 浏览器窗口相对于电脑屏幕上边的距离, 火狐不支持
+    console.log(typeof window.screenLeft); //0, 火狐undifined, 其他number
+    console.log(window.screenX); //0, IE不支持
+    console.log(window.screenY); //24, IE不支持
+
+//6.跨浏览器操作,浏览器都支持，但是每个浏览器的值是不一样的
+    var leftX = typeof window.screenLeft == 'number' ? window.screenLeft : windwo.screenX; 
+    var leftY = typeof window.screenTop == 'number' ? window.screenTop : windwo.screenY; 
+    console.log(leftX); //0
+    console.log(leftY); //24
+
+//7.窗口的大, 可是窗口的宽和高, IE不支持
+    console.log(window.innerWidth);//1366 , window.必须有，因为IE不支持
+    console.log(window.innerHeight); //385
+
+//8.窗口的大, 窗口大小＋边框, IE不支持
+    console.log(window.outerWidth);//1366 
+    console.log(window.outerHeight); //744
+
+//9.窗口的大, 窗口大小,所有浏览器都支持
+    console.log(document.documentElement.clientWidth); //1366
+    console.log(document.documentElement.clientHeight); //385
+
+//10.跨浏览器获取视口（可视范围的页面窗口), 所有浏览器都可用
+    width = window.innerWidth; 
+    height = window.innerHeight; 
+    if(typeof width!='number')
+    {
+        //IE6标准模式
+        if(document.compatMode  == 'CSS1Compat')
+        {
+            width = document.documentElement.clientWidth; 
+            height = document.documentElement.clientHeight; 
+        }else
+        //IE6非标准模式
+        {
+            width = document.body.clientWidth; 
+            height = document.body.clientHeight; 
+        }
+    }
+    console.log('浏览器可视窗口宽度为：' + width); //浏览器可视窗口宽度为：1366 
+    console.log('浏览器可视窗口高度为：' + height); //浏览器可视窗口高度为：385
+
+    //将窗口移动到距离做左100, 距离上100的位置
+    moveTo(100, 100)//google不支持
+    //将窗口移动从坐标开始向左和向下移动100的位置
+    moveBy(100, 100)//google不支持
+    //调整浏览器大小google也不支持
+    resizeTo(100, 100)
+    resizeBy(100, 100)
+
+/*
+ * 超时调用, setTimeout('要执行的js代码', 毫秒数)
+ */
+    //第一种方式, 1秒后输出hello
+    setTimeout("console.log('hello')", 1000); 
+    function testTimeOut()
+    {
+        console.log('it is testTimeOut function'); 
+    }
+    //第二种方式, 1秒后输出it is is testTimeOut function
+    setTimeout(testTimeOut, 1000); 
+    //第三种方式, 1秒后输出it is setTimeout niming function
+    setTimeout(function(){
+            console.log('it is setTimeout niming function'); 
+    }, 1000); 
+
+    //取消当前超时调用
+    var time = setTimeout("alert('123')", 1000); //返回值是超时调用ID
+    clearTimeout(time); 
+
+    //使用超时调用模拟定时器(推荐使用, 因为到时间后不用像setInterval一样需要clearInterval)
+    /*
+    var i=0; 
+    var totalNum = 5; 
+    setTimeout(outtime, 1000); 
+    function outtime()
+    {
+        document.getElementById('num').innerHTML = totalNum; 
+        totalNum--; 
+        if(i == totalNum)
+        {
+            alert('时间已经到５秒了'); 
+        }else
+        {
+            setTimeout(outtime, 1000); 
+        }
+    }
+    */
+
+/*
+ * 间歇调用 setInterval()
+ * 可以重复不断的执行
+ */
+    //每隔一秒执行一次
+    setInterval(function(){
+        //console.log('setInterval test'); 
+    }, 1000); 
+    //使用间歇调用实现计时器(不推荐使用)
+    /*
+    var i=0; 
+    var totalNum = 5; 
+    var intId = setInterval(timing, 1000); 
+    function timing()
+    {
+        document.getElementById('num').innerHTML = totalNum; 
+        totalNum--; 
+        if(i == totalNum)
+        {
+            clearInterval(intId); 
+            alert('时间已经到５秒了'); 
+        }
+    }
+    */
+
+/*************************************************************************
+  location对象是BOM对象之一，它提供了与当前窗口中加载的文档有关的信息
+  事实上location对象是window对象的属性, 也是document对象的属性
+  所以window.location 和　document.location等效
+******************************j********************************************/
+    console.log(window.location);  //输出：{hash: "",  search: "",  pathname: "/home/lxf/git/user_liangxifeng833/my_program/javas…/%E7%B3%BB%E7%BB%9F%E5%AD%A6%E4%B9%A0/10-BOM.html",  port: "",  hostname: ""…}
+    console.log(window.document.location); //输出：{hash: "",  search: "",  pathname: "/home/lxf/git/user_liangxifeng833/my_program/javas…/%E7%B3%BB%E7%BB%9F%E5%AD%A6%E4%B9%A0/10-BOM.html",  port: "",  hostname: ""…}ancestorOrigins: DOMStringListassign: ()hash: ""host: ""hostname: ""href: "file:///home/lxf/git/user_liangxifeng833/my_program/javascript/%E7%B3%BB%E7%BB%9F%E5%AD%A6%E4%B9%A0/10-BOM.html"origin: "file://"pathname: "/home/lxf/git/user_liangxifeng833/my_program/javascript/%E7%B3%BB%E7%BB%9F%E5%AD%A6%E4%B9%A0/10-BOM.html"port: ""protocol: "file:"reload: reload()replace: ()search: ""toString: toString()valueOf: valueOf()__proto__: Object
+
+    //location.hash='#66'; //会跳转到包含#66的URL地址中
+    //location.port=888; //会自动给主机名后添加:888, 并跳转到该地址
+    //location.search; //获取url地址中的查询字符串, 如何设置会跳转
+    //跳转url
+    //location.href='http:www.baidu.com'; 
+    //跳转url等效于location.href
+    //location.assign('http://www.baidu.com'); 
+    //location.replace('http://www.baidu.com'); //不产生历史记录的跳转，也就是跳转到百度后，浏览器无法后退
+
+    //获取url的查询字符串并转换为数组
+    function getArgs()
+    {
+        var qustring = location.search.length>0 ? location.search.substring(1) : '' ; 
+        var items = qustring.split('&'); 
+        var item=null, name=null, value=null; 
+        
+        var args = []; 
+        for(var i=0; i<items.length; i++)
+        {
+            item=items[i].split('='); 
+            name=item[0]; 
+            value =item[1]; 
+            args[name] = value; 
+        }
+        return args; 
+    }
+    //比如访问的url = http://localhost/a.php?id=10&name=zhangsan
+    console.log(getArgs()); //输出：[id: "10",  name: "zhangsan"]
+
+    /*
+    location.reload(); //重新加载当前页面，有可能从浏览器缓存中加载
+    location.reload(true); //重新加载当前页面，重新从服务器重获取资源
+    */
+
+
+    /*
+     * 历史记录对象history
+     */
+    //历史记录总量
+    console.log('历史记录总量='+history.length); 
+    /*
+    history.back(); //前往浏览器历史条目前一个url, 后退
+    history.forward(); //前往浏览器历史条目后一个url, 前进
+    history.go(num); //浏览器在histroy对象中向前num=正整数或向后num＝负整数
+    */
+</script>
+<div id="num"></div>
+</body>
+</html>
+

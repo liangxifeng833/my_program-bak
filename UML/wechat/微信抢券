@@ -1,0 +1,45 @@
+@startuml
+title 微信抢券
+actor 微信用户 #red
+/'-------------定义参与者别名 -------------------'/
+participant "wechatIndex\n微信对外接口C" as index #00FF00
+微信用户->index: index()
+activate index
+	/'该部分逻辑在 << 微信活动入口结构时序图中有详细描述>>'/
+	ref over index
+		该部分逻辑在
+		 << 微信活动入口结构时序图>>
+		中有详细描述
+	end ref
+	
+	participant "RushTicketApi\n微信抢券类L" as rush #FFFFFF
+	group 调用index()处理业务逻辑
+		index->rush:obj->index()				
+		activate rush
+			alt 1 == this.saleType[0][isPhone] 需要绑定手机号的使用码
+				rush->
+			else 获取批量生成的使用码
+				
+			end
+		
+			/'获取批次信息'/	
+			rush->rush:_getBatch()\n通过批次编号查询批次信息
+			activate rush
+				participant "Ticket_batch\n券批次类L" as batch #FFFFFF
+				rush->batch:
+				batch-->rush:batchObj
+				alt 查询批次失败
+					note over rush:log_message(error, '通过批次编号: **** ,获取批次失败！');\n微信不返回任何信息
+				end
+			rush-->rush:_getBatch()结束
+			deactivate rush
+			
+			note over rush	
+				//赋值批次对象属性
+				this._batchObj = batchObj;
+			end note
+		rush-->index:
+		deactivate rush
+		end		
+deactivate index
+@enduml

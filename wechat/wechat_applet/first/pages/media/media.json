@@ -1,0 +1,8 @@
+{
+    "navigationBarBackgroundColor": "orange",
+    "navigationBarTitleText": "媒体组件测试",
+    "navigationBarTextStyle": "black",
+    "backgroundColor": "#A60F75",
+    "enablePullDownRefresh": true,
+    "backgroundTextStyle": "dark"
+}

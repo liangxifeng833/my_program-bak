@@ -1,0 +1,43 @@
+@startuml
+title BLL抢券接口
+actor view #red
+/'-------------定义参与者别名 -------------------'/
+participant "rushTicketCodeHavePhone\n有手机号抢券接口C" as sendTicket #00FF00
+
+/'=======================初始化操作========================'/
+group 初始化操作
+	view->sendTicket:__construct()
+	activate sendTicket
+		note over sendTicket
+			//不需要验证批次是否绑可以转赠
+			this._isCheckShare = 0;
+			//提取码为'---'
+			this._extractCode = '---';
+		end note
+		participant "createTicketCodeAbstract\n生成券使用码抽象接口C" as codeA #ADD8E6
+		sendTicket->codeA:parent::__contruct()
+	sendTicket-->view:
+	deactivate sendTicket
+end
+
+view->sendTicket:index_post()
+activate sendTicket
+/'=======================验证token========================'/
+group 验证参数及token
+	note over sendTicket
+		验证token
+	end note
+end
+
+
+/'==================== 调用父类index方法发券==========================='/
+group 调用父类index方法发券
+	sendTicket->codeA:parent::index()
+	activate codeA
+	codeA-->sendTicket:json
+	deactivate codeA
+end
+
+sendTicket-->view:json
+deactivate sendTicket
+@enduml

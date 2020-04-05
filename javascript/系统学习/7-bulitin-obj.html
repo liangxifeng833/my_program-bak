@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html;  charset=utf-8" />
+<title>内置对象练习</title>
+<body>
+<script type="text/javascript">
+/*
+ * ECMAScript内置对象 Blobal和Math, 不需要实例化就存在的对象
+ */
+/*
+ 1.Global对象是ECMAscript中的一个特殊对象, 因为这个对象不存在, 
+     在ECMAScript中不属于任何其他对象的属性和方法, 都属于它的属性和方法
+     事实上并不存在全局变量和全局函数; 所有全局作用域定义的变量和函数, 
+     都是Global对象的属性和方法
+     Web浏览器将Global作为window对象的一部分加以实现
+ */
+    var box = 'hello'; 
+    //console.log(Global.box); //错误Global is not defined
+    console.log(window.box); //输出:hello
+//2.Global内置属性和方法 URI编码, 
+//  encodeURIComponent比encodeURI编码更加彻底, 所以encodeURIComponent使用频率会高一点
+    var box = '//Lee李'; 
+    console.log(encodeURI(box)); //输出:Lee%E6%9D%8E
+    console.log(encodeURIComponent(box)); //输出:%2F%2FLee%E6%9D%8E
+//3.URI解码decodeURI decodeURIComponent
+
+//4.eval()方法, 主要担当一个字符串解析作用, 只接收一个参数, 这个参数是
+//要执行的js代码字符串
+    eval('var box = 100'); //解析js代码字符串为js代码
+    console.log(box); //输出:100
+    eval('console.log(100)'); //输出:100
+
+    eval('function box(){return 123}'); 
+    console.log(box()); //输出123
+//5.Global对象的属性:undefined, NaN, Object, Array, Function等
+    console.log(Array); 
+//6.因为Global对象无法直接访问, 所以在Web浏览器使用window对象访问全局
+
+/*
+   7.ECMAScript还为保存数学公式和信息提供了一个对象
+     Math对象, 与js直接编写计算功能相比, Math对象提供的计算功能执行要快很多
+*/
+    console.log(Math.E); //自然对数, 输出:2.718281828459045
+    console.log(Math.PI); //圆周率, 输出:3.141592653589793
+
+    console.log(Math.min(2, 3, 5, 19)); //求最小值, 输出2
+    console.log(Math.max(2, 3, 5, 19)); //求最大值, 输出19
+    console.log(Math.ceil(25.1));        //向上取整, 输出26
+    console.log(Math.floor(25.1));      //向下取整, 输出25
+    console.log(Math.round(25.6));       //四舍五入, 输出:26
+
+    console.log(Math.random()); //输出0-1之间的随机数, 不包含0 1
+    console.log(Math.floor(Math.random()*10+1)); //输出0到10之间的随机数
+    //公式:随机数:Math.floor(Math.random()*总数+第一个值) 14=总数+5-1 = 10+5-1
+    console.log(Math.floor(Math.random()*10+5)); //输出5到14之间的随机数
+    console.log(Math.floor(Math.random()*10+3)); //输出5到14之间的随机数
+
+    //自己定义的随机数
+    function myRandDom(start, end)
+    {
+        var total = end-start+1; 
+        return Math.floor(Math.random()*total+start); //输出5到14之间的随机数
+    }
+    console.log(myRandDom(1, 20)); 
+    
+</script>
+</body>
+</html>

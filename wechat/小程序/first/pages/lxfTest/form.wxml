@@ -1,0 +1,90 @@
+<!--input.wxml-->
+<view class="section">
+  <input placeholder="这是一个可以自动聚焦的input" auto-focus/>
+</view>
+<view class="section">
+  <input placeholder="这个只有在按钮点击的时候才聚焦" focus="{{focus}}" />
+  <view class="btn-area">
+    <button bindtap="bindButtonTap">使得输入框获取焦点</button>
+  </view>
+</view>
+<view class="section">
+  <input  maxlength="10" placeholder="最大输入长度10" />
+</view>
+<view class="section">
+  <view class="section__title">你输入的是：{{inputValue}}</view>
+  <input  bindinput="bindKeyInput" placeholder="输入同步到view中"/>
+</view>
+<view class="section">
+  <input  bindinput="bindReplaceInput" placeholder="连续的两个1会变成2" />
+</view>
+<view class="section">
+  <input  bindinput="bindHideKeyboard" placeholder="输入123自动收起键盘" />
+</view>
+<view class="section">
+  <input password type="number" />
+</view>
+<view class="section">
+  <input password type="text" />
+</view>
+<view class="section">
+  <input type="digit" placeholder="带小数点的数字键盘"/>
+</view>
+<view class="section">
+  <input type="idcard" placeholder="身份证输入键盘" />
+</view>
+<view class="section">
+  <input placeholder-style="color:red" placeholder="占位符字体是红色的2" />
+</view>
+
+<!--picker:选择器下拉选框-->
+<!--普通的-->
+<view>选择城市:</view>
+<picker range="{{citys}}" value="{{index}}" bindchange="bindPickerChange">
+    <view>当前选择:{{citys[index]}}</view>
+</picker>
+<!--时间选择器-->
+<view>选择时间:</view>
+<picker value="{{time}}" mode="time" start="09:01" end="21:00" bindchange="bindTimeChange">
+    <view>当前选择:{{time}}</view>
+</picker>
+
+<!--日期选择-->
+<view>选择日期:</view>
+<picker mode="date" value="{{date}}" bindchange="bindDateChange" start="2015-11-01" end="2017-11-01">
+    <view>当期选择:{{date}}</view>
+</picker>
+<!--
+<view>
+    <view>{{year}}年{{month}}月{{day}}日</view>
+    <picker-view indicator-style="height: 50px;" style="width: 100%; height: 300px;" value="{{value}}" bindchange="bindChange">
+        <picker-view-column>
+            <view wx:for="{{years}}" style="line-height: 50px">{{item}}年</view>
+        </picker-view-column>
+        <picker-view-column>
+            <view wx:for="{{months}}" style="line-height: 50px">{{item}}月</view>
+        </picker-view-column>
+        <picker-view-column>
+            <view wx:for="{{days}}" style="line-height: 50px">{{item}}日</view>
+        </picker-view-column>
+    </picker-view>
+</view>-->
+
+<!-- 开关选择器-->
+<view>
+    <switch checked type="checkbox" bindchange="switch1Change"/>
+    <switch bindchange="switch2Change"/>
+</view>
+
+<!--confirm询问框-->
+<button bindtap="showConfirm">confirm提示框</button>
+
+<!--消息提示框-->
+<button bindtap="showToast">消息提示读取豆瓣图书</button>
+
+<!-- 导航跳转 -->
+<view class="btn-area">
+    <navigator url="../logs/logs?id=1" hover-class="navigator-hover">跳转到新页面log页</navigator>
+    <navigator url="../lxfTest/test" open-type="redirect" hover-class="other-navigator-hover">在当前页打开lxfTest</navigator>
+    <navigator url="../module/module" open-type="switchTab" hover-class="other-navigator-hover">切换到指定Tab组件页面</navigator>
+</view>

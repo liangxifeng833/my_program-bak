@@ -1,0 +1,5 @@
+<view>我是item.wxml</view>
+
+<template name="iteml">
+    <text>我是item.wxml里面的模板文件，我的名字是：{{name}}</text>
+</template>

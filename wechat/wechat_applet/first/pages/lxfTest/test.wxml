@@ -1,0 +1,93 @@
+<!--<view>Content</view>
+<view>{{name}}</view>
+<view>密码是：{{pass}}</view>
+<button bindtap="toIndex">跳转到首页</button>
+<navigator hover-class="active" url="../navi/navi">使用组件跳转到首页</navigator>
+-->
+<!-- 使用外部common.js中的方法sayHello
+<button bindtap="say">sayHello</button>
+ -->
+<!-- 条件渲染 
+<button bindtap="show">是否显示</button>
+<view wx:if="{{bol}}">隐藏信息</view>
+
+<view wx:if="{{chengji<60}}">不及格</view>
+<view wx:elif="{{chengji>=60 && chengji<80}}">及格</view>
+<view wx:elif="{{chengji>=80 && chengji<=100}}">优秀</view>
+-->
+<!--使用block将多个组件包装起来，block也可以自定义 
+<block wx:if="{{true}}">
+    <view>第一个view</view>
+    <view>第二个view</view>
+</block>-->
+<!--使用block将多个组件包装起来，block也可以自定义 
+<div wx:if="{{true}}">
+    <view>第一个使用div包装的view</view>
+    <view>第二个使用div包装view</view>
+</div>-->
+<!-- 除了wx:if， hidden也可以控制隐藏和显示
+<text hidden="{{true}}">我是一个文本</text> -->
+<!-- 三元运算 
+<view>{{bol?"正":"反"}}</view>-->
+<!-- 计算
+<view>{{8+id}}</view> -->
+<!-- 做字符串的连接
+<view>{{"hello "+name}}</view> -->
+<!-- 定义一个模板 是一个独立的作用域，无法使用test.js中的data中属性
+<template name="object">
+    <view>{{a}}</view>
+    <view>{{b}}</view>
+    <view>{{temname}}</view>
+</template>-->
+<!-- 使用一个模板
+<template is="object" data="{{a:'zhangsan',b:'lisi'}}"> -->
+<!-- 使用test.js中data.obj属性 obj={a:'wangwu',b:'zhaoliu'}
+<template is="object" data="{{...obj,temname:name}}">
+</template> -->
+<!-- 循环输出 
+<view wx:for="{{arr}}">项目：{{item}}</view>-->
+<!-- 组合, 将test.js中的id组合到数组中
+<view wx:for="{{[id,5,4,3,2,1]}}">{{item}}</view> -->
+<!-- 组合, 将test.js中的id组合到数组中
+<view wx:for="{{[id,5,4,3,2]}}">{{item}}</view> -->
+
+<!--循环详解
+<view wx:for="{{arr}}" wx:for-index="index" wx:for-item="itemName">
+下标为：{{index}},项目为：{{itemName}}
+</view>-->
+<!-- 打印九九乘法表 
+<view wx:for="{{[1,2,3,4,5,6,7,8,9]}}" wx:for-item="i">
+    <view style="display:inline-block; width:80px;" wx:for="{{[1,2,3,4,5,6,7,8,9]}}" wx:for-item="j">
+        <view wx:if="{{j<=i}}">
+            <view>{{i}}*{{j}}={{i*j}}</view>
+        </view>
+    </view>
+</view>-->
+<!--
+<switch wx:for="{{objectArray}}" wx:key="unique" style="display:block">
+    {{item.id}}
+</switch>
+<button bindtap="switch">Switch</button>-->
+
+<!--冒泡事件, 用户点击innerTap事件会向父级传递，导致父元素也出发bindtap事件-->
+<!--非冒泡事件, 用户点击innerTap事件不会向父级传递
+<view id="outer" bindtap="outerTap" style="border:1px solid red; padding:5px;">
+    outer 
+    <view id="middle" catchtap="middleTap"  style="border:1px solid green;padding:5px;">
+        middle 
+        <view id="middle" bindtap="innerTap" style="border:1px solid black;padding:5px;">
+            inner view
+        </view>
+    </view>
+<view>
+-->
+
+<!-- 引用 import 只包含目标文件模板信息
+<import src="item.wxml" />
+<template is="iteml" data="{{name:'wangwu'}}" />
+-->
+<!-- 引用 include 只包含目标文件非模板信息
+<include src="item.wxml" />
+<template is="iteml" data="{{name:'wangwu'}}" />
+-->
+<view class="rpx"></view>

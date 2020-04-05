@@ -1,0 +1,69 @@
+<!doctype html>
+<html>
+    <head>
+        <style>
+            //所有h5结构标签本质上就是div，只不过有意义
+            * {border:1px solid red; height:20px; }
+            /*页面头部 header */
+            header{height:150px; background:#ABCDEF;}
+            nav{height:30px; background:#ff9900; margin-top:100px;  }
+            nav ul li {width:100px; height:30px; float:left; line-height:28px;  }
+            
+            /*页面中间div*/
+            div{margin-top:10px; height:700px;  border:1px solid red; }
+            section{height:700px; background:#ABCDEF; width:70%; float:left; }
+            article{background:#F90; width:500px; margin:0 auto; text-align:center; }
+
+            /*右侧边栏*/
+            aside{height:700px; background:#ABCDEF; width:28%; float:right; }
+
+            /*页面底部div*/
+            footer{height:100px; background:#ABCDEF; margin-top:10px; clear:both;}
+        </style>
+    </head>
+    <body>
+        <header>
+            <p>这是一个header标签</p>
+            <nav>
+            <ul>
+                <li>首页</li>
+                <li>PHP</li>
+                <li>论坛</li>
+                <li>社区</li>
+            </ul>
+            </nav>
+        </header>
+        <div>
+            <section>
+                <p> 这是一个section标 </p>
+                <article>
+                    <h2>标题 - 春晓</h2>
+                    <p>
+                    春眠不觉晓，<br />
+                    处处文字咬，<br />
+                    </p>
+                </article>
+                <hr />
+                <article>
+                    <h2>标题 - 上学歌</h2>
+                    <p>
+                    太阳当空照，<br />
+                    花儿对我笑，<br />
+                    </p>
+                </article>
+            </section>
+            <aside>
+                <p> 这是一个aside标 </p>
+                <hgroup>
+                    <h3>女生宿舍为何频频被盗 </h3>
+                    <h3>两百头猪为何半夜才死 </h3>
+                    <h3>是人性的扭曲 </h3>
+                    <h3>又是一个h3标签</h3>
+                </hgroup>
+            </aside>
+            <div style="clear:both; "></div>
+        </div>
+        <footer></footer>
+    </body>
+</html>
+

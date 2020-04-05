@@ -1,0 +1,151 @@
+@startuml
+title 微信活动入口结构
+
+actor 微信用户 #red
+/'-------------定义参与者别名 -------------------'/
+participant "wechatIndex\n微信对外接口C" as index #00FF00
+微信用户->index: index()
+activate index
+/'=======================验证参数========================'/
+group 1: 验证参数
+	alt empty(this.userMsgObj || !is_Object(this.userMsgObj))
+		note over index: echo ''; exit;微信服务器不作任何处理，并记录log
+	end
+end
+	
+/'=======================初始化促销配置类========================'/
+group 2: 初始化促销配置类
+	participant "saleConfig\n活动配置类L" as config #FFFFFF
+	/'初始化活动配置类'/
+	index->config:__construct(this.userMsgObj)
+	activate config
+		note over config
+			赋值用户信息对象
+			this.userMsgObj = userMsgObj
+		end note
+	config-->index:none
+	deactivate config
+end 
+		
+/'=======================获取促销活动类型========================'/
+group  3: 获取促销活动类型
+		index->config: getSaleType()获取活动类型
+			activate config
+				note over config
+					分割用户发送字符串 ,内容比如：A-1-业务信息,
+					 (A:活动种类标识, 1:该活动种类特殊规则, 业务信息:具体的业务需求字符)
+					$textArr = explode(" -",userMsgObj.Content)
+					
+					$dictionary = array(A=>array(saleId=>1,library=>sale/Sale_wechat,isPhone=>0), B=>其他活动类型);
+					saleId含义：活动主键
+					sale/Sale_wechat 含义是：对应活动library
+					isPhone＝>0 : 含义：使用码规则是否绑定手机号，　０不绑定手机号获取批量生成使用吗，１绑定手机号需要用户输入手机
+					//定义活动类型（"<font color=red><b>也就是下面促销业务逻辑加载的library名称"）				
+					
+					$saleType = array(sales=>$dictionary[$textArr[0]], rule=>$textArr[1],keyword=>$textArr[2]);
+					$saleType下标说明：sales: 该活动的信息array(saleId=>活动表主键，...')
+								　　 	 rule: 特殊规则代号
+								         	 keyword:业务需求关键字，比如：批次编号
+				end note
+			config-->index: 成功：$saleType，失败：false
+			destroy config
+end
+
+/'=======================通过redis查询该用户本活动信息========================'/
+group 4: 查询redis中该用户的请求次数
+	index->index:_getUserRequestes()
+	activate index
+	participant "RedisClient\nRedis操作类L" as redis #FFFFFF
+		index->redis:hGet(wechatSale_userOpenId,requests)
+		activate redis
+			note over redis
+				redis存储用户请求次数的value类型为hash
+				Key说明：
+					wechatSale_userOpenId => wechatSale_用户在微信服务器的唯一标识
+				Value说明：
+					requests =>用户请求次数
+			end note
+		redis-->index:该用户请求次数requests
+		deactivate redis
+	index-->index:requests
+	deactivate index
+end 
+
+
+/'=======================判断用户发送信息是否活动匹配========================'/
+group  4: 判断用户发送信息是否活动匹配
+	alt empty($saleType[sales]) || empty($saleType[rule] || empty(keyword))
+		note over index: echo '';exit;如果不符合条件，则微信无任何信息返回给用户
+	end
+end
+
+/'=======================返回微信用户告知等待========================'/
+group 5: 返回给用户告知等待信息
+participant "WechatReturnText\n微信返回文本信息类L" as responseT #FFFFFF
+	index->responseT:__construct(this.userMsgObj)
+			note over responseT:在本身构造器中\nparent::_constuct(userMsgObj)\n父类构造器初始化this.userMsgObj
+	index->responseT:responseMsg(请您耐心等待...)\n调用返回微信用户信息
+	activate responseT
+	responseT-->微信用户:请您耐心等待...
+	deactivate responseT
+end
+		
+/'=======================实例化抢券类对象开始 ========================'/	
+group  6: 实例化抢券类对象
+	participant "RushTicketApi\n微信抢券类L" as rush #FFFFFF
+	index->rush:__construct(userMsgObj,saleType)
+	activate rush
+		participant "WechatTicketAbstract\n微信抢券抽象类L" as rushA #ADD8E6		
+		/'----------------------parent:contruct构造父类开始----------------------------'/
+		group 6.1 构造父类 		
+			rush->rushA:parent::__construct(userMsgObj,saleType)
+				activate rushA
+				rushA-->rush:
+				deactivate rushA
+			end
+			/'----------------------parent:contruct构造父类结束----------------------------'/
+			
+			/'----------------------个性化规则验证开始----------------------------'/
+			group 6.2 : 个性化规则验证	
+				rush->rush:checkSpecialRule()个性化规则验证	
+				activate rush
+					alt 1==this._startFlag 如果已开始
+						/'---加载配置类---'/
+						participant "Config\n配置类L" as configB #FFFFFF
+						rush->configB:getRule($saleType[rule]);获取规则类名
+						activate configB
+							note over configB:$ruleLib = 'Rule_'.$saleType[1];
+						configB-->rush:	$ruleLib (比如：Rule_1)
+						deactivate configB
+										
+						/'---加载对应规则类---'/
+						alt $ruleLib
+							participant "Rule_1\n规则类L" as rule #FFFFFF
+							rush->rule:index(userMsgObj)
+							activate rule
+								alt 当前时间 < 10点
+									note over rule:  调用微信客服接口返回：'现在不是领券时间，请稍后再试';
+								end
+								rule-->rush:
+							deactivate rule
+						end
+					end
+				rush-->rush:
+				deactivate rush
+			end
+			/'----------------------个性化规则验证结束----------------------------'/			
+	rush-->index:obj
+	deactivate rush
+end
+/'=======================实例化抢券类对象结束 ========================'/		
+
+/'=======================开始抢券==================================='/
+group 开始抢券接口
+	index->rush:obj.index()		
+	activate rush
+	rush-->index:
+	deactivate rush
+end
+
+deactivate index
+@enduml

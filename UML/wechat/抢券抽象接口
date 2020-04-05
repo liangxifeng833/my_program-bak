@@ -1,0 +1,42 @@
+@startuml
+title 抢券抽象接口
+actor subClass #red
+
+/'----------------------parent:contruct构造父类开始----------------------------'/
+group 6.1 构造父类 		
+	participant "WechatTicketAbstract\n微信抢券抽象类L" as rushA #ADD8E6	
+	subClass->rushA:parent::__construct(userMsgObj,saleType)
+		activate rushA
+			note over rushA
+				赋值请求信息对象
+				this.userMsgObj = userMsgObj
+				赋值活动类型
+				this._saleType = saleType
+			end note
+									
+			participant "Sale_wechat\n微信活动信息类L" as sale #FFFFFF
+			rushA->rushA:getSaleInfo(saleId)\n查询活动信息表
+			activate rushA
+				rushA->sale:通过主键saleId\n以Rest方式获取活动对象\n"<font color=red><b>注意：在查询时候要实例活动日期对象"
+				activate sale
+				sale-->rushA:this._saleObj  = obj \n返回为活动对象属性赋值
+				deactivate sale
+			deactivate rushA
+									
+			/'---验证活动是否开始---'/
+			rushA->rushA:_isStart()判断活动是否开始
+			activate rushA
+				rushA->sale:_isStart()
+				activate sale								
+					sale-->rushA: 已经开始:true 未开始: false
+					alt _isStart()
+						note over rushA:this._startFlag = 1;
+					end
+				deactivate sale
+			deactivate rushA
+			rushA-->subClass:
+		deactivate rushA
+end
+	/'----------------------parent:contruct构造父类结束----------------------------'/
+
+@enduml

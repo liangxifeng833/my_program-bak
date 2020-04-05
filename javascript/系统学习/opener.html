@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html;  charset=utf-8" />
+<title>测试子窗口操作父窗口</title>
+<body>
+<script type="text/javascript">
+document.onclick = function()
+{
+    alert(12); 
+    window.opener.document.write('子窗口让我输出一行字'); 
+}
+
+</script>

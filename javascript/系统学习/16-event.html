@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html;  charset=utf-8" />
+<title>事件绑定及深入2</title>
+<body>
+<style type="text/css">
+.red{width:200px; height:200px; background:red; }
+.blue{width:200px; height:200px; background:blue; }
+</style>
+<body onunload="alert('The onunload event was triggered')">
+<script type="text/javascript">
+/*********************************************************************************
+  W3C事件处理函数, 推荐使用，注意：IE8及以下不支持
+  addEventListener    添加事件
+  removeEventListener 删除事件
+  所有DOM节点都包含这两个方法, 并且它们接收３个参数，事件名，函数，冒泡或捕获的布尔值(true:捕获，false:冒泡)
+  IE不支持捕获，所以一般都使用false
+ *********************************************************************************/
+    /*
+    window.addEventListener('load', function(){
+        var box = document.getElementById('box'); 
+        box.addEventListener('click', toBule, false); 
+
+    }, false); 
+    function toBule()
+    {
+        this.className = 'blue'; 
+        //用完就移除，否则会保递归超限错误
+        this.removeEventListener('click', toBule, false); 
+        this.addEventListener('click', toRed, false); 
+    }
+    function toRed()
+    {
+        this.className = 'red'; 
+        this.removeEventListener('click', toRed, false); 
+        this.addEventListener('click', toBule, false); 
+    }
+    */
+/*
+ * 冒泡
+ * IE不支持捕获
+ * addEventListener第三个参数设置为false为冒泡
+ * 以下会逐个输出 testDIV document
+ */
+
+/*
+    window.addEventListener('load', function(){
+        var box = document.getElementById('box'); 
+        box.addEventListener('click', function(){
+            alert('testDIV')
+        }, false); 
+        document.addEventListener('click', function(){
+            alert('document')
+        }, false); 
+
+    }, false); 
+*/
+
+/*
+ * 捕获
+ * IE不支持捕获
+ * addEventListener第三个参数设置为true为捕获
+ * 以下会逐个输出 document testDIV
+ */
+/*
+    window.addEventListener('load', function(){
+        var box = document.getElementById('box'); 
+        box.addEventListener('click', function(){
+            alert('testDIV')
+        }, true); 
+        document.addEventListener('click', function(){
+            alert('document')
+        }, true); 
+
+    }, false); 
+    */
+/*********************************************************************************
+  IE事件处理函数, 参数为事件名和函数
+  attachEvent()
+  detachEvent()
+  注意：  
+    1.IE不支持捕获，只支持冒泡
+    2.IE添加事件不能屏蔽重复函数
+    3.IE中this指向window而不是DOM对象, 所以不能传递this
+    4.在传统事件上，IE无法接收event对象，但使用了attachEvent去可以
+ *********************************************************************************/
+    
+
+/*********************************************************************************
+  跨浏览器添加事件
+ *********************************************************************************/
+//跨浏览器添加事件兼容
+function addEvent(obj, type, fn)
+{
+    if(obj.addEventListener)
+    {
+        obj.addEventListener(type, fn); 
+    }else if(obj.attachEvent)
+    {
+        obj.attachEvent('on'+type, fn); 
+    }
+}
+//跨浏览器移除事件兼容
+function removeEvent(obj, type, fn)
+{
+    if(obj.removeEventListener)
+    {
+        obj.removeEventListener(type, fn); 
+    }else if(obj.detachEvent)
+    {
+        obj.detachEvent('on'+type, fn); 
+    }
+}
+//跨浏览器获取目标对象
+function getTarget(evt)
+{
+    //W3C
+    if(evt.target)
+    {
+        return evt.target; 
+    }else if(window.event.srcElement)
+    //IE
+    {
+        return window.event.srcElement; 
+
+    }
+}
+addEvent(window, 'load', function(){
+        var box=document.getElementById('box'); 
+        addEvent(box, 'click', toBule); 
+})
+function toBule(evt)
+{
+    var that=getTarget(evt); 
+    this.className = 'blue'; 
+    //用完就移除，否则会保递归超限错误
+    removeEvent(that, 'click', toBule)
+    addEvent(that, 'click', toRed); 
+}
+function toRed(evt)
+{
+    var that=getTarget(evt); 
+    this.className = 'red'; 
+    //用完就移除，否则会保递归超限错误
+    removeEvent(that, 'click', toRed)
+    addEvent(that, 'click', toBule); 
+}
+/*
+ * 总结：IE9以后就全面支持addEventListener和removeEventListener
+ * 所以可以考虑不用attachEvent 和 detachEvent
+ */
+</script>
+<div id="box" class='red'>测试DIV</div>
+</body>
+</html>

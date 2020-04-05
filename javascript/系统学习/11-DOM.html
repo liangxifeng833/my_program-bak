@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html;  charset=utf-8" />
+<title>文档对象模型DOM</title>
+<body>
+<script type="text/javascript">
+/*********************************************************************************
+ * DOM：D 代表Web加载的网页文档
+        O 代表对象，document对象
+        M 代表模型，文档的树形结构
+　 加载html页面时候，Web浏览器生成一个树形结构，用来标识页面内部结构，
+　 DOM将这种树形结构理解为由节点组成(将标签视为节点, 即元素)
+
+ * 节点分为三类 <div id="box">测试Div</div>
+    1.元素节点，其实就是标签，<div></div>
+    2.文本节点，其实就是标签内的纯文本，测试Div
+    3.属性节点，其实就是标签的属性, id="box"
+ * 查找元素
+   1.getElementById() 参数为元素的id值, 就可以获取该元素节点
+   2.将<script>标签移动到页面底部保证dom加载完毕后才能获取的dom节点
+   3.使用onload事件, 当网页所有内容全部加载完毕后，再执行的代码
+   4.getElementById需要区分大小写，否则导致不兼容
+   5.注意：元素节点中自定义属性只有IE支持，W3C不合法，其他浏览器均不支持
+   6.尽量避免使用getAttribute访问html属性,setAttribute()设置html属性, 否则会在IE7及以下产生不兼容的问题
+   7.移除输出和属性值，removeAttribute('style'); IE6以及更低版本不支持
+
+   8.getElementsByTagName
+ *********************************************************************************/
+    window.onload = function(){
+        var idBox = document.getElementById('box'); 
+        //获取该元素节点的表签名, 输出：DIV
+        console.log(idBox.tagName);     
+
+        //获取该元素节点的文本内容，而不是文本节点,包含html标签, 输出：测试Div
+        console.log(idBox.innerHTML);  
+
+        //获取该元素节点id属性值, 注意不是属性节点, 输出:box
+        console.log(idBox.id); ;        
+
+
+        //获取该元素节点title属性值, 输出：标题
+        console.log(idBox.title);      
+
+        //获取该元素节点style属性对象
+        console.log(idBox.style);     
+
+        //获取该元素节点style属性对象中属性的值，输出：red
+        console.log(idBox.style.color); 
+
+        //设置文本内容，可以解析html, 不是单纯文本
+        //idBox.innerHTML = '<b>hello</b>';  
+
+        //输出color=red; 非IE返回的是style字符串，IE返回的是对象
+        console.log(idBox.getAttribute('style')); 
+
+        //自定义属性全部兼容
+        console.log(idBox.getAttribute('bbb')); 
+
+        //获取该元素节点class属性值, 输出：pox, 所有浏览器都兼容
+        console.log(idBox.className);  
+
+        //IE无法获取, 与idBox.className等效
+        console.log(idBox.getAttribute('class')); 
+        //IE可以获取，非IE无法获取
+        console.log(idBox.getAttribute('className')); 
+
+        //创建属性和属性值
+        idBox.setAttribute('title', '标题2'); 
+
+        var lis = document.getElementsByTagName('li'); 
+        //输出li元素的个数 输出：３
+        console.log(lis.length);            
+        //输出第一个元素的文本, 输出：php
+        console.log(lis[0].innerHTML);      
+        //输出第一个元素的文本, 输出：php
+        console.log(lis.item(0).innerHTML); 
+
+        //获取body节点对象
+        var body = document.getElementsByTagName('body')[0];
+        console.log(body);//获取的是HTMLBodyElement对象, body节点
+
+        //获取html所有节点对象，IE比其他浏览器会多算一个标签，会把文档声明也算进去
+        var all = document.getElementsByTagName('*');
+
+        //getElementsByName('name')获取相同名称(name)元素，返回对象数组HTMLColletion(Object NodeList)
+        //IE浏览器在获取不合法的HTML中的name时，会获取不到
+        //也就是name属相本书不是div里面的属性，所以IE就会忽略掉
+        var name = document.getElementsByName('divName'); 
+        console.log(name); //name=divName的元素节点数组对象
+        //input中又合法的name属性，所以IE也支持了
+        var inputName = document.getElementsByName('inputName'); 
+        console.log(inputName); //name=inputName的元素节点数组对象
+
+    /* DOM节点　
+     * 1.节点分为元素节点，属性节点，和文本节点
+     * 2.以上三个节点又有三个属性, nodeName, nodeType, nodeValue
+     * 3.node只能获取当前节点的东西
+     * 4.文本节点不属于文本内容
+     *
+     */
+        var box = document.getElementById('box'); 
+        //以下输出div, 获取元素节点名称
+        console.log(box.nodeName); 
+        //以下输出1, 获取元素节点类型, 1元素节点，2:属性节点, 3:文本节点
+        console.log(box.nodeType); 
+
+        //以下输出null, 元素结点本身没有内容
+        //node本身把节点指针放在元素<div></div>上，也就是说本身是没有value的
+        console.log(box.nodeValue); 
+
+        //以下输出：<b>hello</b>如果要输出<div>***</div>里面包含的内容，那么使用innerHTML
+        console.log(box.innerHTML); 
+
+        //获取元素子节点
+        box.childNodes; 
+        /*
+         * 1.第一个子节点为：测试Div,（文本节点）
+         * 2.第二个子节点为：<em>倾斜</em>  (元素节点)
+         * 3.第三个子节点为：结尾,（文本节点）
+         */
+        //alert(box.childNodes[0]);  //Object Text文本节点对象
+
+        //获取节点类型，输出为3，标识文本节点
+        console.log(box.childNodes[0].nodeType);  //３表示文本节点
+        //获取文本节点的文本内容
+        console.log(box.childNodes[0].nodeValue); //输出:测试Div
+        //文本节点没有标签名，以下输出：#text
+        console.log(box.childNodes[0].nodeName); 
+        //以下输出无效
+        console.log(box.childNodes[0].innerHTML); //输出:undefined
+        for(var i=0; i<box.childNodes.length; i++)
+        {
+            if(box.childNodes[i].nodeType === 1)
+            {
+                console.log('元素节点：'+box.childNodes[i].nodeName); 
+            }else if(box.childNodes[i].nodeType === 3)
+            {
+                console.log('文本节点：'+box.childNodes[i].nodeValue); 
+            }
+        }
+        //以上循环输出为：
+        /*
+        文本节点：测试Div
+        元素节点：EM
+        文本节点：结尾
+        */
+        
+        /*
+         * innerHTML和nodeValue区别
+         * 1.在获取文本节点内容时需要使用nodeValue，不能使用innerHTML
+         * 2.box.childNodes[0].nodeValue='<strong>abc</strong>'//结果为<strong> abc</strong>
+         * 3.box.innerHTML='<strong>abc</strong>'//结果为abc
+         */
+
+        /*
+         * //获取子节点第一个节点
+         * box.firstChild.nodeValue = box.childNodes[0].nodeValue
+         * //获取子节点最后一个节点
+         * box.lastChild.nodeValue = box.childNodes[length-1].nodeValue
+         */
+        //返回当前文档对象 HTMLDocument , 也就是根节点
+        console.log(box.ownerDocument); 
+        //与document相等, 以下返回true
+        console.log(box.ownerDocument == document); 
+
+        //获取父节点, 以下输出：HTMLBodyElement
+        console.log(box.parentNode);  
+
+        //获取同级的下一个节点, 以下获取em节点
+        console.log(box.firstChild.nextSibling);  
+
+        //获取同级的上一个节点, 以下获取em节点
+        console.log(box.lastChild.previousSibling);  
+
+        /*
+         * 属性节点 介绍
+         */
+        //获取这个元素节点的属性列表
+        box.attributes; 
+        //获取这个元素节点的属性个数, 以下输出3
+        console.log(box.attributes.length); 
+        //alert(box.attributes[0]);  //Attr，属性节点
+        //属性节点的类型是2, 以下输出2
+        console.log(box.attributes[0].nodeType); 
+        //获取属性节点值, 以下输出第一个属性节点的值为:divName
+        console.log(box.attributes[0].nodeValue); 
+        //获取属性节点值, 以下输出第一个属性节点的名为:name
+        console.log(box.attributes[0].nodeName); 
+        //获取指定属性值，以下获取属性名为title的属性值为：标题2
+        console.log(box.attributes['title'].nodeValue); 
+
+        /*
+         * 处理空白字符
+         */
+        var ul = document.getElementById('ul').childNodes; 
+        //以下输出为3
+        console.log(filterWhiteNode(ul).length); 
+
+        /*
+         * 节点的操作
+         */
+
+        var ul = document.getElementById('ul'); 
+        //write一般用与测试，会覆盖html
+        //document.write('hello'); 
+
+        //只是创建了一个节点p，还没有添加的文档中
+        //注意createElement在IE7以下语法为createElement('<p>123</p>'); 
+        var p=document.createElement('p'); 
+        //将新节点p添加到ul子节点列表的末尾
+        ul.appendChild(p); 
+
+        //创建一个文本节点
+        var text = document.createTextNode('测试div3'); 
+        //把文本添加到p标签内
+        p.appendChild(text); 
+
+        //同级节点操作，在ul父节点添加一个p，就是在ul前面添加一个元素节点
+        //ul.parentNode 就是body节点
+        ul.parentNode.insertBefore(p, ul); 
+        //注意：dom无inserAfter操作
+
+        //repalceChild()方法，可以把节点替换为指定节点
+        //box.parentNode.repalceChild(p, box); //把div替换为p
+
+        //克隆方法 cloneNode
+        var box = document.getElementById('box'); 
+        //克隆一个节点，参数如果是true就是把标签内的信息同事克隆，如果是false则只克隆标签
+        var clone = box.firstChild.cloneNode(true); 
+
+        //removeChild删除节点, 删除id=box的节点
+        box.parentNode.removeChild(box);  
+
+
+
+    }
+        /*
+         * 忽略空白字符
+         */
+        function filterWhiteNode(node)
+        {
+            var arr = []; 
+            for(var i=0; i<node.length; i++)
+            {
+                if(node[i].nodeType === 3  && /^\s+$/.test(node[i].nodeValue))
+                {
+                    continue; 
+                }else
+                {
+                    arr.push(node[i]); 
+                }
+            }
+            return arr; 
+        }
+</script>
+<div name="divName" id="box" title="标题" class="pox" style="color:red;">测试Div<em>倾斜</em>结尾</div>
+<input type='text' name="inputName" value="test" />
+<ul id="ul">
+    <li>php</li>
+    <li>java</li>
+    <li>python</li>
+</ul>
+</body>
+</html>
+

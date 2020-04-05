@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html;  charset=utf-8" />
+<title>匿名函数与闭包</title>
+<body>
+<script type="text/javascript">
+/*********************************************
+ * 匿名函数：没有名字的函数
+ *********************************************/
+//1.匿名函数赋值给变量
+    var box = function(){
+        return 'liangxifeng'; 
+    }
+    console.log(box()); //输出：liangxifeng 
+//2.通过自我执行来执行匿名函数, (匿名函数)(); 
+    (function(){
+        console.log('123'); 
+    })(); 
+//3.把匿名函数自我执行的返回值赋值给变量
+    var box = (function(){
+            return 'hello'; 
+            })(); 
+    console.log(box); //输出:hello
+//4.匿名函数自我执行传参
+    (function(age){
+        console.log(age); //输出：100
+     })(100); 
+//5.函数里放一个匿名函数
+    function test()
+    {
+        return function(){ //闭包
+            return 'zhangsan'; 
+        }
+    }
+    console.log(test()()); //输出：zhangsan
+/******************************************************************************************
+ * 闭包：在一个函数内部创建另一个函数，通过另一个函数访问这个函数的局部变量
+ * 闭包的优点：同时也是缺点，就是可以把局部变量"驻留在内存"中，可以避免使用全局变量
+ * （全局变量污染导致应用程序不可预测）
+ * 所以推荐使用私有的，封装的局部变量
+ * 由于闭包里作用域返回的局部变量资源不会立刻销毁回收，所以可能会
+ * 占用更多内存，过度使用闭包会导致性能下降，建议在非常有必要情况才使用闭包
+ ******************************************************************************************/
+//1.通过匿名函数实现局部变量驻留内存中从而累加
+    function box1(){
+        var age = 100; 
+        return function(){
+            age++; 
+            return age; 
+        }
+    }
+    var a = box1(); //将box1中的age变量驻留在内存中
+    console.log(a()); //101, 将box1中的age变量累加1
+    console.log(a()); //102, 将box1中的age变量累加1
+    console.log(a()); //103, ...
+    a=null;  //不用就应该接触引用
+
+    function box2()
+    {
+        var arr = []; 
+        for(var i=0;  i<5; i++)
+        {
+            arr[i] = function(num){//通过自我及时执行匿名函数
+                //num其实在这里
+                return function(){  //因为闭包可以将变量num驻留在内存中
+                    return num; 
+                } 
+            }(i); 
+        }
+        return arr; 
+    }
+    var b = box2(); 
+    console.log(b); 
+    for(var i=0; i<b.length; i++)
+    {
+        console.log(b[i]()); //输出顺序：0 1 2 3 4
+    }
+//2.闭包在运行时，this指向window，因为闭包并不属于这个对象的属性和方法
+//使用闭包访问本对象内的属性第一种方法对象冒充
+    var user = 'The Window'; 
+    var box3 = {
+        user:'The box3', 
+        getUser:function(){
+            //这里作用域的this是Box3
+            return function(){//闭包
+                //这里作用域的this是Window
+                return this.user; 
+            }
+        }
+    }
+    console.log(box3.getUser()()); //输出:The Window
+    console.log(box3.getUser().call(box3)); //输出:The box3
+//使用闭包访问本对象内的属性第二种方法修改作用域
+    var user = 'The Window'; 
+    var box4 = {
+        user:'The box4', 
+        getUser:function(){
+            //这里作用域的this是Box4
+            var that = this; 
+            return function(){//闭包
+                //这里作用域的this是Window
+                return that.user; 
+            }
+        }
+    }
+    console.log(box4.getUser()()); //输出:The box4
+</script>
+<div id='oDiv'>liangxifeng</div>
+</body>
+</html>
+<script>
+//3, 内存泄露问题, 只有IE会产生该问题
+    function box5()
+    {
+        var oDiv = document.getElementById("oDiv"); 
+        var text = oDiv.innerHTML
+        oDiv.onclick = function()
+        {
+            console.log(text); 
+        }
+        oDiv = null; //用完后接触引用，防止内存泄露
+    }
+    box5(); 
+/******************************************************************************************
+ * 私有作用域
+ ******************************************************************************************/
+//1, 使用块级作用域（私有作用域)
+    function box6()
+    {
+        (function (){//包含自我执行的匿名函数，就可以实现私有作用域
+            for(var j=0; j<5; j++)
+            {
+                console.log(j)
+            }
+         })(); 
+        //console.log(j); //出了这个私有作用域，变量j就立刻销毁，所以这里会报错:j is not defined
+    }
+    box6(); 
+
+    var age = 100
+    console.log(age); 
+    //不用的变量要销毁
+    age.null; 
+    
+    (function (){
+        //这里就是全局的私有作用域,执行的过程中age在内存中有，执行完毕后自动销毁
+        var age = 100; 
+        console.log(age)
+     })(); 
+/******************************************************************************************
+ * js中没有私有属性的概念，所有的对象属性都是公有的，不过却又一个私有变量的概念
+ * 任何在函数中定义的变量，都可以任务是私有变量，因为不能在函数外部访问
+ ******************************************************************************************/
+//1. 属性和方法都是公有的，没有私有的概念
+    function Box7()
+    {
+        this.age = 120;         //属性，公有的
+        this.run = function(){ //方法，公有的
+            return '运行中'; 
+        }
+    }
+    var box = new Box7(); 
+    console.log(box.age); //输出：120
+//2. 私有变量, 私有函数,要通过公共特权方法访问
+    function Box8()
+    {
+        var age = 220; 
+        function run()
+        {
+            return '运行中'; 
+        }
+        //对外可见的公共方法，特权方法
+        this.publicGo = function()
+        {
+            return age +run(); 
+        }
+    }
+    var box = new Box8(); 
+    console.log(box.age); //输出：undefined
+    console.log(box.publicGo()); //输出：220运行中
+
+//3.通过构造函数传递参数访问私有
+    function Box9(value)
+    {
+        var user = value; //私有变量
+        this.getUser = function()
+        {
+            return user; 
+        }
+        this.setUser = function(value2)
+        {
+            user = value2; 
+        }
+    }
+    var box1 = new Box9('lxf'); 
+    box1.setUser('lisi'); 
+    console.log(box1.getUser()); //输出：lisi
+    var box2 = new Box9('kkk'); 
+    console.log(box1.getUser()); //输出:lisi
+
+//4.对象的方法在多次调用的时候会多次创建，可以使用静态私有变量避免这个问题
+//使用prototype导致方法共享了，而user也就变成了静态属性了（共享与不同对象中的属性)
+    (function(){
+        var user = ""; //私有变量
+        //function Box10(){}; //在函数内部写构造函数，不支持，因为私有作用域里的函数外部无法访问
+        //全局构造函数
+        Box10 = function(value){//将你们函数赋值给全局变量，就可以在外部访问了
+            user = value; 
+        }; 
+        Box10.prototype.getUser = function()
+        {
+            return user; 
+        }
+        Box10.prototype.setUser = function(value)
+        {
+            user = value; 
+        }
+     })(); 
+    var box1 = new Box10('Lee');  
+    console.log(box1.getUser()); //输出:Lee
+    var box2 = new Box10('kkk'); 
+    console.log(box1.getUser()); //输出:kkk
+
+    box2.setUser('wangwu'); 
+    console.log(box1.getUser()); //输出:wangwu
+
+//5.单例：永远只实例化一次，其实就是字面量对象声明方式
+    var box11 = {
+        usr:"Lee", 
+        run:function(){
+            return '运行中'; 
+        }
+    }
+
+    var box12 = function(){
+        var user = 'Lee'; 
+        function run()
+        {
+            return '运行中'; 
+        }
+        var obj = {
+            publicGo:function()
+                     {
+                         return user + run(); 
+                     }
+        }
+        return obj; 
+    }(); 
+    console.log(box12.publicGo()); 
+
+
+</script>

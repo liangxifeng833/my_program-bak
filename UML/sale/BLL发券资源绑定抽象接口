@@ -1,0 +1,79 @@
+@startuml
+title 发券资源绑定抽象接口
+actor subClass #red
+/'========================构造方法========================'/
+group 构造方法
+participant "sendTicketBindAbstract\n发券资源绑定抽象接口C" as bindA #ADD8E6
+	subClass->bindA:__construct()
+	activate bindA
+	note over bindA:parent::_construct()
+	/'-----------------初始化参数--------------'/
+		bindA->bindA:_initParam()初始化参数
+		activate bindA
+			note over bindA
+				this._codeType区分参数传过来的是提取码还是使用码
+				this._grantType发券资源类型赋值
+			end note
+			alt 1==this._codeType 提取码
+				note over bindA:this._extractCode 提取码赋值\n验证提取码非空
+				/'----根据提取码获取使用码--'/
+				bindA->bindA:_extractToUseCode()根据提取码获取使用码
+				activate bindA
+					bindA-->bindA:this._useCodeIds[ticket_id] = > 使用码
+				deactivate bindA
+			else 2==this._codeType 使用码
+				note over bindA:this._useCodeIds 使用码数组赋值\n验证使用码必须是非空数组
+				bindA->bindA:_checkUseCode()验证使用码
+				activate bindA
+					loop this._useCodeIds 循环验证使用码
+						alt 如果在券主表不存在该使用码
+							bindA-->subClass:errorMsg(使用码不存在)
+						end
+						alt 如果该使用码已被绑定过了
+							note over bindA: 通过this._getGrantfromTicketId(ticketId)验证
+							bindA-->subClass:errorMsg(电子券已被绑定过了)
+						end								
+					end
+				bindA-->bindA:
+				deactivate bindA
+
+			end
+			alt empty(this._grantType)
+				note over bindA:errorMsg(发券资源参数丢失)
+			end
+		bindA-->bindA:_initParam()结束
+		deactivate bindA
+		/'=============验证发券资源类型==================='/
+		group 验证发券资源类型
+			bindA->bindA:_checkGrandType()验证发券资源类型
+			activate bindA
+				alt !in_array(this._grantType,this._grantTypeArr)
+					bindA-->bindA:false
+				else
+					bindA-->bindA:true
+				end
+				alt !_checkGrandType()
+					bindA-->subClass: errorMsg(资源类型错误资源类型错误);
+				end
+			deactivate bindA
+		end
+	deactivate bindA
+end
+
+/'=============调用dal事务绑定发券资源记录表==================='/
+group 调用dal事务绑定发券资源记录表
+	subClass->bindA:_bindAction(paramArr)调用dal事务绑定发券资源记录表
+	activate bindA
+		participant "tctGetGrant\n事务接口绑定发券资源DAL" as dalBind #FFFFFF 
+		bindA->dalBind:index_post()
+		dalBind-->bindA:json
+		alt index_post()
+			bindA-->subClass: true
+		else
+			bindA-->subClass:false
+		end
+	bindA-->subClass:
+	deactivate bindA
+end
+	
+@enduml

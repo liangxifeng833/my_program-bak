@@ -1,0 +1,54 @@
+<!-- 弹性盒模型
+<view class="flex-wrap">
+    <view class="a">a</view>
+    <view class="b">b</view>
+    <view class="c">c</view>
+</view>-->
+
+<!--可滚动视图区域 scroll-view
+<scroll-view upper-threshold="100" scroll-into-view="{{toView}}"  class="wrap" bindscrolltoupper="scrolltoupper" bindscrolltolower="scrolltolower" scroll-y="true" scroll-x="true">
+    <view id="a1" class="a">a</view>
+    <view id="b1" class="b">b</view>
+    <view id="c1" class="c">c</view>
+</scroll-view>
+<button bindtap="tapChange">切换</button>-->
+
+<!--滑动视图容器 swiper-->
+<swiper height="500" indicator-dots="true" autoplay="true" interval="{{inter}}" duration="500" bindchange="swiperChange">
+    <swiper-item wx:for="{{imgUrls}}"  >
+        <image src="{{item}}" width="400" height="155" />
+    </swiper-item>
+</swiper>
+<view>切换图片间隔是：{{inter}}</view>
+<!-- 使用滚动组件动态修改滑动swiper的属性 -->
+<slider bindchange="sliderChange" show-value min="2000" max="5000">
+</slider>
+
+<!-- 基础内容 -->
+<!-- 循环输出所有可用图标 -->
+<block wx:for="{{iconTypes}}" >
+<icon  type="{{item}}" size="50" />
+</block>
+<text>我是text中的文字，长按可以选中</text>
+<!-- 进度条 -->
+<progress percent="{{process}}"  stroke-width="20" color="red" show-info />
+
+<!-- 表单组件 -->
+<!--复选框 -->
+<checkbox-group bindchange="checkboxChange">
+  <label class="checkbox" wx:for="{{country}}">
+    <checkbox value="{{item.name}}" checked="{{item.checked}}"/>{{item.value}}
+  </label>
+</checkbox-group>
+
+<button bindtap="changeButton">控制按钮显示</button>
+<form bindsubmit="doSubmit" bindreset="doReset">
+<input type="text" name="userName" />
+<button disabled="{{buttonBlo}}" form-type="submit" hover-class="hover_class_new" type="warn" size="mini" plain="true">
+被控制按钮显示
+</button>
+<button form-type="reset" size="mini">重置</button>
+</form>
+
+<button bindtap="toFormMod">跳转到表单组件</button>
+<navigator url="../media/media" >跳转到媒体组件</navigator>

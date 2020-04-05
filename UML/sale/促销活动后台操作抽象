@@ -1,0 +1,85 @@
+@startuml
+title 后台促销活动抽象
+actor subClass #red
+/'========================验证参数========================'/
+group 验证参数
+participant "saleAbstract\n活动新增或修改抽象接口C" as saleA #subClass8E6
+subClass->saleA: _checkParam()验证参数
+activate saleA
+     	/'---------验证必要参数----------------------------'/
+		alt empty(_baseArray[活动名]) ||  empty(_dateArray[type]) || empty(_dateArray[data])
+		  saleA-->subClass:false
+		end
+deactivate saleA
+end
+
+
+/'========================查询活动并赋值属性========================================='/	
+group 查询活动并赋值属性
+	subClass->saleA:_getSaleRow(saleId)查询活动并赋值属性
+	activate saleA
+		participant "Sale_wechat\n活动主表类L" as saleL #FFFFFF
+		saleA->saleL:通过Rest的get方法映射, 条件是活动表主键,\n "<font color=red> <b>"注意：附加加载初始化对应日期对象
+		activate saleL
+		saleL-->saleA: saleObj
+		deactivate saleL
+		/'--------------活动对象赋值------------------------'/
+		note over saleA
+			this._saleObj = saleObj
+		end note
+	saleA-->subClass: saleObj
+	deactivate saleA
+end
+
+
+/'======================== 验证活动日期========================'/
+group 验证活动日期
+	subClass->saleA:_checkDate() 验证活动日期
+	activate saleA
+		participant "Sale_wechat\n活动主表类L" as saleL #FFFFFF
+		/'-------------------活动是否开始-----------------------------------------'/
+		saleA->saleL: this.saleObj.isStart()活动是否开始
+		activate saleL
+		saleL-->saleA:boolean
+		deactivate saleL
+		alt this.saleObj.isStart() 已经开始
+			saleA-->subClass: 'stared'
+		end
+		
+		/'-------------------活动是否结束-----------------------------------------'/
+		saleA->saleL: this.saleObj.isExpire()活动是否过期
+		activate saleL
+		saleL-->saleA:boolean
+		deactivate saleL
+		alt this.saleObj.isExpire() 已经过期
+			saleA-->subClass: 'expired'
+		end
+		saleA-->subClass: 'ok'
+	deactivate saleA
+	end
+	
+	/'========================新增活动日期========================================='/	
+	group 新增活动日期
+		subClass->saleA:_addDate()
+		activate saleA
+			alt  1== _dateType['type'] 连续日期新增
+				participant "Sale_life_continue\n连续日期类L" as conti  #FFFFFF
+				subClass->conti:save()
+				activate conti
+				conti-->subClass:saveRes
+				deactivate conti
+			else 间断日期新增
+				participant "Sale_life_gap\n连续日期类L" as gap  #FFFFFF
+				loop _dateArray[date]
+					subClass->gap:save()
+					activate gap
+					gap-->subClass:saveRes
+					deactivate gap
+				end
+			end
+		
+		saleA-->subClass:boolean
+		deactivate saleA
+	end
+	
+@enduml

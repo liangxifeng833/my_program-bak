@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html;  charset=utf-8" />
+<title>函数的学习</title>
+<body>
+<script type="text/javascript">
+/***********************************************************************************
+  在ECMAScript中, Function类型实际上是对象, 每个函数都是Function类型的实例,
+  而且都与其他引用类型一样具有属性和方法
+  由于函数是对象, 因此匿名函数实际也是一个指向函数对象的指针
+  函数名是指针
+/**********************************************************************************/
+//1.第一种普通函数的声明方式
+    /*
+    function box(num1, num2)
+    {
+        return num1+num2; 
+    }
+    */
+//2.第二种使用变量方式, 初始化函数
+    /*
+    var box = function(num1, num2)
+    {
+        return num1+num2; 
+    }
+    */
+//3.第三种使用new运算符的构造函数, 初始化函数, 不推荐使用
+    /*
+    var box = new Function('num1', 'num2', 'return num1+num2'); 
+    console.log(box(1, 2)); //输出:3
+    */
+//4.函数可以传递函数, 以下不是作为函数来传递的, 而是作为函数返回值传递的
+    /*
+    function box(sum, num)
+    {
+        return sum+num; 
+    }
+    function sum(num)
+    {
+        return num+10; 
+    }
+    var res = box(sum(10), 10);//这里的sum(10)传递的是函数返回值, 和普通变量一样, 没区别 
+    console.log(res); //输出:30
+    */
+//5.函数可以传递函数, 要把函数本身做我函数传递, 而不是函数的结果
+    function box(sum, num)
+    {
+        num += 10; 
+        return sum(num); 
+    }
+    function sum(num)
+    {
+        return num + 10; 
+    }
+    var result = box(sum,10)//这里的sum是一个函数, 当做参数传递到另一个函数里, 而不是函数的返回值
+    console.log(result); //输出30
+/***********************************************************************************
+  在函数内部, 有两个特殊的对象, arguments和this, arguments是一个数组对象, 
+  包含着传入函数的所有参数, 主要用途是保存函数参数, 但这个对象还有一个名叫
+  callee的属性, 该属性是一个指针, 指向拥有这个arguments对象的函数
+/**********************************************************************************/
+//6.函数的内部属性
+    function box2(num)
+    {
+        if(num<=1)
+        {
+            return 1; 
+        }else
+        {
+            //return num*box2(num-1); //阶乘, 递归, 以下和本行效果等效
+            return num*arguments.callee(num-1); //阶乘, 递归
+        }
+    }
+    console.log(box2(5)); 
+/***********************************************************************************
+    函数内部另一个特殊对象是this, 
+    其行为与Java和C#中的this大致相似, 换句话说, 
+    this代表本对象
+    当全局作用域中调用函数时, this函数引用的就是window
+    window是一个对象, 而且是js里最大的对象, 是最外围的对象
+/**********************************************************************************/
+    console.log(window); 
+    console.log(this); //和window一模一样, 所以this就是window, 因为在window的范围内
+
+    //color是window的属性
+    var color = '红色';  //声明全局变量, 等效于 window.color='红色'
+    console.log(window.color+'|'+this.color+'|'+color); //输出:红色|红色|红色
+
+    var box ={
+        color:'蓝色', //这里的color是box下的属性, 也就是局部变量
+        sayColor:function()
+        {
+            console.log(this.color) //这里的this, 代表的是box对象
+        }
+    }
+    box.sayColor(); //输出:蓝色
+    console.log(this.color) ; //输出:红色
+
+    window.name = 'zhangsan'; 
+    function sayName()
+    {
+        console.log(this.name);
+    }
+    sayName(); //输出:zhangsan
+    var box3 = {
+        name:"lisi" 
+    }
+    //给box3方法赋值
+    box3.sayName = sayName; 
+    box3.sayName(); //输出lisi
+    function test(name, age, age2)
+    {
+        return name+age; 
+    }
+    console.log(test.length); //输出函数test参数的个数, 3
+//7.apply和call可以冒充另外一个函数
+    function box4(num1, num2)
+    {
+        return num1+num2; 
+    }
+    function sum(num1, num2)
+    {
+        return box4.apply(this, [num1, num2]); //this标识window作用域, []表示传递参数
+        //return box4.call(this, num1, num2); //等效与apply
+    }
+    function sum2(num1, num2)
+    {
+        return box4.apply(this, arguments); 
+    }
+    console.log(sum(22, 66)); //输出88
+    console.log(sum2(22, 66)); //输出88
+
+//8.apply和call主要用途是解决作用域问题
+    var color1 = 'red'; 
+    var box = {
+        color1:'blue'
+    }; 
+    function sayColor()
+    {
+        console.log(this.color1); 
+    }
+    sayColor(); //输出:red
+    sayColor.call(window); //冒充window, 输出依然是red
+    sayColor.call(this); //this就是window
+    sayColor.call(box); //冒充box, 作用域在box对象里面, 所以输出:blue
+//9.函数的三种调用方式
+    /*
+    obj.myFunc(); 
+    myFunc.call(obj, arg); 
+    myFunc.apply(obj, [arg1, arg2..]); 
+    */
+</script>
+</body>
+</html>
+
+
+

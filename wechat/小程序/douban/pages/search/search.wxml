@@ -1,0 +1,26 @@
+<!--index.wxml-->
+<view class="page-header">
+    <input class="page-header-text" placeholder="请输入搜索关键字" auto-focus  bindchange="search"/>
+</view>
+
+<scroll-view  scroll-y="true">
+    <navigator url="../movie/movie?id={{item.id}}" wx:for="{{movies}}">
+        <view class="item">
+            <!-- 缩略图 -->
+            <image class="poster" src="{{item.images.small}}"></image>
+            <!-- 标题 -->
+            <view class="meta">
+                <text class="title">{{item.title}}</text>
+                <text class="sub-title">{{item.original_title}}({{item.year}})</text>
+                <!-- 作者 -->
+                <text class="artists">
+                    <text wx:for="{{item.directors}}"> {{item.name}} </text>
+                </text>
+            </view>
+            <!-- 评分 -->
+            <view class="rating">
+                <text>{{item.rating.average}}</text>
+            </view>
+        </view>
+    </navigator> 
+</scroll-view>

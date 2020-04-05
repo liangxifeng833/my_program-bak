@@ -1,0 +1,65 @@
+@startuml
+title BLL普通发券接口
+actor view #red
+/'-------------定义参与者别名 -------------------'/
+participant "createTicketCode\n普通发券接口C" as sendTicket #00FF00
+
+view->sendTicket:index_post()
+activate sendTicket
+/'=======================验证参数及token========================'/
+group 验证参数及token
+	note over sendTicket
+		验证token
+		接收合同号 this._contract
+	end note
+	alt empty(this._contract)
+		sendTicket-->view: errorMsg(参数错误)
+	end
+end
+
+/'==================== 验证合同号和手机号==========================='/
+group 验证合同号和手机号
+	sendTicket->sendTicket:_checkPhoneAndContract()\n验证合同号和手机号
+	activate sendTicket
+	sendTicket-->sendTicket:boolean
+	deactivate sendTicket
+
+	alt !_checkPhoneAndContract()
+	sendTicket-->view:errorMsg(手机号跟合同号不一致)
+	end
+end
+
+/'================ 验证合同号是否已经生成过使用码============='/
+group 验证合同号是否已经生成过使用码
+	sendTicket->sendTicket:_checkIsSend()\n验证合同号是否已经生成过使用码
+	activate sendTicket
+	sendTicket-->sendTicket:boolean
+	deactivate sendTicket
+	
+	alt !_checkIsSend()
+		sendTicket-->view:errorMsg(合同号已经生成过使用码,提取码)
+	end
+end 
+
+/'==================== 生成提取码==========================='/
+group 生成提取码
+	participant "ExtractCode\n生成提取码L" as extract #FFFFFF
+	sendTicket->extract:createRule(this._contract)
+	activate extract
+	extract-->sendTicket:this._extractCode
+	deactivate extract
+
+end
+
+/'==================== 调用父类index方法发券==========================='/
+group 调用父类index方法发券
+	participant "createTicketCodeAbstract\n生成券使用码抽象接口C" as codeA #ADD8E6
+	sendTicket->codeA:parent::index()
+	activate codeA
+	codeA-->sendTicket:json
+	deactivate codeA
+end
+
+sendTicket-->view:json
+deactivate sendTicket
+@enduml

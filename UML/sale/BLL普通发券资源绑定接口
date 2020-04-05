@@ -1,0 +1,63 @@
+@startuml
+title 普通发券资源和券绑定接口
+actor view #red
+/'========================构造方法========================'/
+group 构造方法
+participant "setConsumeTicket\n普通发券资源和券绑定接口C" as bind #00FF00
+participant "sendTicketBindAbstract\n发券资源绑定抽象接口C" as bindA #ADD8E6
+	view->bind:__construct()
+	activate bind
+		bind->bindA:parent::__construct()
+		activate bindA
+		bindA-->bind:
+		deactivate bindA
+		bind-->view:
+	deactivate bind
+end
+
+/'========================绑定发券资源和券========================'/
+group 绑定发券资源和券
+	view->bind:_bind: index_post()
+		activate bind
+		/'----验证合同主键----'/
+		note over bind
+			验证token
+			this._grandId = 合同主键id
+			验证参数grantId
+		end note
+		
+		alt !this._getConsume() 如果未查询到消费记录
+			bind-->view:errorMsg(合同号不存在！) 
+		else 查询到合同信息
+			note over bind: $contract = 合同号赋值 
+		end
+		
+		alt this._getSource() 如果该合同已经绑定过资源
+			bind-->view:errorMsg(该合同号在券资源绑定表中已存在) 
+		end
+		
+		note over  bind
+			组合调用dal参数
+			$param = array(
+				grantId=>this._grandId                合同主键
+				grantType=>this._grantType      资源类型product_consume等
+				ticketArr => this._useCodeIds    券主键对应使用码数组
+				pactNumber => $contract          合同号
+				)
+		end note
+		
+		bind->bindA:parent::_bindAction($param)绑定操作
+		activate bindA
+		bindA-->bind:boolean
+		deactivate bindA
+		alt _bindAction()绑定成功
+			bind-->view:response(array('status'=>1,'state'=>1))
+		else 绑定失败
+			bind-->view: errorMsg(绑定失败)		
+		end
+		deactivate bind
+end
+
+
+	
+@enduml

@@ -1,0 +1,84 @@
+@startuml
+title 后台新增活动（SUC002）
+actor view #red
+/'-------------定义参与者别名 -------------------'/
+participant "saleAdd\n活动新增C" as add #00FF00
+view->add: index_post()
+activate add
+/'========================验证参数========================================='/
+group 验证参数
+	note over add
+		验证tokent：md5(类名+方法名+sale)
+		接收参数：
+		this._baseArray = array(活动基本信息)
+		//连续日期
+		this._dateArray = array('type'=>1，data=>array('startDate'=>开始日期，'endDate'=>截止日期))
+		type 促销日期类型１：连续　２：间断
+		//间断日期
+		this._dateArray = array('type'=>2，data=>array(具体日期))
+	end note
+	
+	/'-------------调用父类的验证参数方法---------'/
+    participant "saleAbstract\n活动新增或修改的抽象接口C" as saleA #ADD8E6
+     add->saleA:parent::_checkParam()\n调用父类的验证参数方法
+     activate saleA
+     saleA-->add: boolean
+     deactivate saleA
+     alt !_checkParam()
+     	add-->view:errorMsg( 必要参数丢失);
+     end
+ end
+	
+
+/'========================初始化活动类并保存活动基本信息========================================'/
+group 初始化活动类并保存活动基本信息
+	/'--------------初始化活动类------------------------'/
+	participant "Sale_wechat\n活动主表类L" as saleL #FFFFFF
+	add->saleL:load实例化活动主表类
+	activate saleL
+	saleL-->add: saleObj
+	deactivate saleL
+	
+	/'--------------各个属性赋值------------------------'/
+	note over add
+		this._saleObj = saleObj
+		//将新增的属性赋值
+		this._saleObj.sw_name = 活动名称
+		shit._saleObj.其他属性名 = 其他属性值
+	end note
+	
+	/'--------------保存操作------------------------'/
+	add->saleL:save()
+	saleL-->add:saveRes
+	alt 'sucess' != saveRes
+		add-->view:errorMsg("新增活动失败!")
+	end
+end
+
+/'========================有了活动主键修改活动编号========================================'/	
+group 有了活动主键修改活动编号
+	note over add
+		//有了活动主键修改活动编号
+		this._saleObj.sw_number = CX2016040000+this._saleObj.sw_id
+	end note
+	add->saleL:save()
+	saleL-->add:saveRes
+	alt 'sucess' != saveRes
+		add-->view:errorMsg("修改活动编号失败!")
+	end
+end 
+
+/'========================新增促销日期========================================'/	
+group 新增促销日期
+	add->saleA:parent::_addDate()调用父类方法新增日期
+	activate saleA
+	saleA-->add:boolean
+	deactivate saleA
+	alt 'sucess' != _addDate()
+		add-->view:errorMsg("新增日期失败!")
+	else
+		add-->view: status=>1
+	end
+end	
+deactivate add
+@enduml

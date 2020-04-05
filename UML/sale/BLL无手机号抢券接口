@@ -1,0 +1,18 @@
+@startuml
+title BLL无手机号抢券
+actor view #red
+/'-------------定义参与者别名 -------------------'/
+participant "rushTicketCodeNoPhone\n无手机号抢券接口C" as sendTicket #00FF00
+
+view->sendTicket:index_post()
+activate sendTicket
+/'=======================验证token========================'/
+group 验证参数及token
+	note over sendTicket
+		验证token
+	end note
+end
+
+sendTicket-->view:json
+deactivate sendTicket
+@enduml

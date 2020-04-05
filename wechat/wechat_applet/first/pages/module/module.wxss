@@ -1,0 +1,49 @@
+/*弹性盒模型*/
+.flex-wrap{
+    display:-webkit-flex;    
+    text-align: center;
+    font-size: 40rpx;
+    line-height: 200rpx;
+    color: white;
+    /*flex-direction: column;*/
+    /*height: 1000rpx;*/
+}
+.flex-wrap view{
+    /*height:200rpx;*/
+}
+.flex-wrap.a{
+    background-color: green;
+    flex:1;
+}
+.flex-wrap.b{
+    background-color: red;
+    flex:1;
+}
+.flex-wrap.c{
+    background-color: blue;
+    flex:2;
+}   
+
+/*可滚动视图区域 scroll-view*/
+.wrap{
+    width:400rpx;
+    height: 400rpx;
+    border: 1px solid red;
+    overflow: scroll;
+}
+.wrap view{
+    width: 600rpx;
+    height: 250rpx;
+}
+.wrap .a{
+    background-color: red;
+}
+.wrap .b{
+    background-color: green;
+}
+.wrap .c{
+    background-color: blue;
+}
+.hover_class_new{
+    opacity:0.2;
+}

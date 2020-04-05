@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html;  charset=utf-8" />
+<title>对象数组练习</title>
+<body>
+<script type="text/javascript">
+/******************************************************************************************************************************
+  1, 对象:是一种引用类型, 而对象就是引用类型的实例, 在ECMAScript中引用类型是一种数据结构, 用于将数据和功能组织在一起          *
+     但ECMAScript虽然是一门面向对象的语言, 缺不具备传统面向对象语言所支持的类和接口等基本机构                                 *
+     所以, 到目前为止我们使用引用类型最多的就是Object类型了, 虽然Object实例不具备多少功能, 但可以用于应用程序中存储和传输数据,* 
+     创建Object类型有两种, new运算符和字面量表示 {}                                                                           *
+/******************************************************************************************************************************/
+
+//1.1创建对象
+    var box = new Object(); //其中new可以省略, 也就等效于 box = Object() 等效于 box = {} 
+//1.2给对象属性赋值
+    box.name='liangxifeng'; 
+    box.age='29'; 
+    console.log(box.name);  //box.name等效于box['name']
+//1.3给对象定义方法
+    function test()
+    {
+        return 'hello'; 
+    }
+    box.test=test; 
+    console.log(box.test()); //输出hello
+//1.4使用字面量方式定义属性和方法
+    var box = {
+        name:'zhangsan', 
+        age:'26', 
+        test:function()
+        {
+            return 'hello world'; 
+        }
+    }
+    console.log(box.test()); //输出hello world, 如果调用时候没有()则会返回方法内容
+//1.5使用delete删除对象属性
+    delete box.name; 
+    console.log(box.name); //输出undefined
+
+/**********************************************************************************
+*    2,数组, ECMAScript中的数组的每个元素可以保存任何类型, 数组的大小也可以调整,  *
+*     有两种创建方式, new操作符和字面量方式,                                      *  
+*     数组本身是Object类型,                                                       * 
+*     个人理解:数组对象如果是字符串下标则代表对象, 索引下标代表数组               *
+/**********************************************************************************/
+//2.1 声明一个空数组
+    var box = new Array(); 
+    console.log(typeof box);  //输出为object, 说明数组本身是对象类型
+
+//2.2 声明有默认值的数组
+    var box = new Array('zhangsan', 28, '北京'); 
+    console.log(box.length); //输出3, 获取元素个数
+    console.log(box);  //输出["zhangsan",  28,  "北京"]
+    console.log(box[0]); //访问数组的值
+//2.3 声明一个包含元素个数的数组
+    var box = new Array(2); //声明包含10个元素的数组, 测试没有任何意义, 实际超出10个元素也可以
+    box[1] = 'hello'; 
+    box['lang'] = 'php'; 
+    box['db'] = 'mysql'; 
+    console.log(box);  //输出,[1: "hello",  lang: "php",  db: "mysql"]
+//2.4 使用字面量的方式创建数组
+    var box = [];  //创建空数组
+    var box = ['a', 'b', 'c', 'e', 'f']; //创建包含元素的数组
+    console.log(box); //输出["a",  "b",  "c", "e", "f"]
+    console.log(box.length); //输出5
+    box[16] = '666';  //将下标为6的元素赋值, 那么下标为5的元素会空出来,最终结果为:a, b, c, e, f, , 666
+
+    box = []; 
+    box['name'] = 'lisi'; 
+    //alert(box['name']); //数组中如何是字符串下标, 代表对象, 只能单独打印属性
+    box = []; 
+    box[0] = 'lisi'; 
+    //alert(box); //如果是索引下标, 代表数组对象, 可以直接打印, 输出为lisi
+//2.5 多维数组的创建
+    var box = [
+                {
+                    name:'liangxifeng', age:28
+                }, 
+                [3, 4, 5, 6, new Object()], 
+                2+10, 
+                new Array(1, 2, 3)
+    ]; 
+
+/**********************************************************************************
+*    3,对象与数组共有的方式                                                       *
+/**********************************************************************************/
+//3.1 内置方法
+    var box = new Array('zhangsan', 28, '北京', new Date()); 
+    console.log(box);  //zhangsan, 28, 北京, Thu Nov 10 2016 16:24:38 GMT+0800 (CST)
+    console.log(box.toString()); //zhangsan, 28, 北京, Thu Nov 10 2016 16:24:38 GMT+0800 (CST)
+    console.log(box.valueOf()); //zhangsan, 28, 北京, Thu Nov 10 2016 16:24:38 GMT+0800 (CST)
+    //本地格式区域字符串, toLocaleString()
+    console.log(box.toLocaleString());//zhangsan, 28, 北京, 2016/11/10 下午4:24:38 
+//3.2 方法允许后返回以竖线 | 分割的字符串, 原数组box仍然为Object
+    console.log(box.join('|')); //输出:zhangsan|28|北京|Thu Nov 10 2016 16:28:47 GMT+0800 (CST)
+//3.3 数组特有的方法, 栈方法push() 和 pop()
+    var box = new Array('zhangsan', 28, '北京'); 
+    console.log(box.push('数据结构', '算法')); //在数组尾部(栈顶)追加N元素, 返回入栈后的数组个数
+    console.log(box.pop()); //输出:算法, 移除数组末尾一个元素(出栈), 并返回移除的元素值 
+//3.4 数组特有的方法, 队列方法 shift() 
+    var box = new Array('zhangsan', 28, '北京'); 
+    box.push('数据结构', '算法');
+    console.log(box.shift()); //输出:zhangsan, 移除数组开头一个元素(出队), 并返回移除的元素值 
+//3.5 给数组头部追加元素
+    console.log(box.unshift('hello')); //返回最新数组长度
+//3.6 排序方法 box.reverse() 逆序 ,  box.sort() 正序 
+    var box = [0, 1, 20, 15, 5]; 
+    console.log(box.sort()); //[0,  1,  15,  20,  5] , sort对于数字排序有问题, 必须加入参数
+    function compare(num1, num2)
+    {
+        if(num1>num2)
+        {
+            return 1; 
+        }else if(num1<num2)
+        {
+            return -1; 
+        }else if (num1 == num2)
+        {
+            return 0; 
+        }
+    }
+    console.log(box.sort(compare));//输出:[0,  1,  5,  15,  20]
+//3.7 操作方法
+    var box = new Array('zhangsan', 28, '北京'); 
+    var box2 = box.concat('hello');  //基于box原数组创建新数组, 原数组不变, 新数组为:zhangsan, 28, 北京, hello
+    console.log(box.slice(1, 2));  //输出:[28], 从数组中去取下标1到小标2之间的数组元素,原数组不变
+
+    console.log(box.splice(1, 2)); //输出:[28,  "北京"], 从数组下标为1的位置, 删除两个元素, 并返回删除的元素
+    console.log(box); //以上操作删除后, 原box数组输出为:["zhangsan"]
+
+    var box = new Array('zhangsan', 28, '北京'); 
+    var box2 = box.splice(1, 2, '新增元素1', '新增元素2'); 
+    console.log(box2); //输出删除的数组, [28,  "北京"]
+    console.log(box); //输出:["zhangsan",  "新增元素1",  "新增元素2"]
+</script>
+</body>
+</html>
+
+
+

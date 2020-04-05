@@ -1,0 +1,60 @@
+@startuml
+title DAL事务
+group 事务初始化操作
+	bll->concrete_Controller:__construct()
+	activate concrete_Controller	
+	concrete_Controller->concrete_Controller: parent::__construct()
+	activate concrete_Controller
+	'===循环开始================================================='
+	loop $this->_dbModel as $model
+		'===注释开始===='
+		note right of concrete_Controller
+		循环实例化model
+		//拆分出model所在目录和model文件名
+		$tmpModelArray = explode("/", $model);
+		//model所在目录
+		$modelDir = isset($modelDir) ? $modelDir : $tmpModelArray[0];
+		end note
+		'===注释结束===='
+		
+		'===加载model开始===='
+		concrete_Controller->Model:$this->load->model($model, $tmpModelArray[1]);
+		activate Model
+		Model-->concrete_Controller:
+		'===加载model结束===='
+		deactivate Model	
+	end
+	'===循环结束=============================================='
+	
+	note right of concrete_Controller
+	一个事务只允许在一个数据库中操作，
+	所以不管初始化多少个model，都只连接一次数据库
+	end note
+	
+	'===连接数据库开始===='
+	concrete_Controller->Model:init($modelDir,0)
+	activate Model
+		note over Model
+		ci全局数据库句柄赋值
+		&get_instance()->mydb = 连接数据库句柄
+		end note
+	Model-->concrete_Controller:
+	deactivate Model
+	'===连接数据库结束===='
+	deactivate concrete_Controller
+end
+
+group 事物对外接口实际操作
+	bll->concrete_Controller:index_put()
+		note over concrete_Controller
+			开启事物
+			$this->mydb->trans_start()
+			.....具体事物操作
+			完成事物
+			$this->mydb->trans_complete()		
+		end note
+	concrete_Controller-->bll:
+end
+
+deactivate concrete_Controller
+@enduml

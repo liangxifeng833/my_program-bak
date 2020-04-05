@@ -1,0 +1,116 @@
+@startuml
+title 后台修改活动（SUC003）
+actor view #red
+/'-------------修改请求get -------------------'/
+==修改请求get ==
+participant "saleModify\n活动修改C" as add #00FF00
+view->add: index_get()
+activate add
+	note over add
+		验证token
+		接收参数 saleId 活动表主键
+	end note
+	''------------------验证参数-----------------''
+	alt empty(saleId)
+	add-->view: errorMsg(参数saleId丢失);
+	end
+	
+	/'--------------通过活动表主键获取活动对象------------------------'/
+	participant "saleAbstract\n活动新增或修改的抽象接口C" as saleA #ADD8E6
+	add->saleA:parent::_getSaleRow(saleId)通过活动表主键获取活动对象
+	
+deactivate add
+add-->view: json
+
+
+
+/'-------------修改请求put -------------------'/
+==修改请求put==
+view->add: index_put()
+activate add
+/'========================验证参数========================================='/
+group 验证参数
+	note over add
+		验证tokent：md5(类名+方法名+sale)
+		接收参数：
+		this._baseArray = array(活动基本信息)
+		//连续日期
+		this._dateArray = array('type'=>1，data=>array('startDate'=>开始日期，'endDate'=>截止日期))
+		type 促销日期类型１：连续　２：间断
+		//间断日期
+		this._dateArray = array('type'=>2，data=>array(具体日期))
+	end note
+	
+	/'-------------调用父类的验证参数方法---------'/
+     add->saleA:parent::_checkParam()\n调用父类的验证参数方法
+     activate saleA
+     saleA-->add: boolean
+     deactivate saleA
+     alt !_checkParam()
+     	add-->view:errorMsg( 必要参数丢失);
+     end
+end
+
+/'========================赋值父类活动对象========================================='/	
+group 赋值父类活动对象
+	add->saleA:parent::_getSaleRow(saleId)通过活动表主键获取活动对象
+	activate saleA
+		participant "Sale_wechat\n活动主表类L" as saleL #FFFFFF
+		saleA->saleL:通过Rest的get方法映射, 条件是活动表主键,\n "<font color=red> <b>"注意：附加加载初始化对应日期对象
+		activate saleL
+		saleL-->saleA: saleObj
+		deactivate saleL
+		/'--------------活动对象赋值------------------------'/
+		note over saleA
+			this._saleObj = saleObj
+		end note
+	saleA-->add: saleObj
+	deactivate saleA
+end
+	
+/'========================调用父类方法验证是否可以修改========================'/
+group 调用父类方法验证是否可以修改
+	add->saleA:parent::_checkDate()验证是否可以修改
+	activate saleA
+	saleA-->add:res
+	deactivate saleA
+	alt 'ok' != _checkDate()
+		add-->view:errorMsg('活动已开始或已过期');
+	end
+end
+	
+/'========================保存修改活动基本信息操作========================================='/
+group 保存修改活动基本信息操作
+	/'--------------各个属性赋值------------------------'/
+	note over add:将修改的属性赋值
+	
+	/'--------------保存操作------------------------'/
+	add->saleL:save()保存活动信息
+	saleL-->add:saveRes
+	alt 'sucess' != saveRes
+		add-->view:errorMsg(修改活动基本信息失败!)
+	end
+end
+	
+/'========================保存修改日期操作========================================='/
+group 保存修改日期操作
+	/'------------------------修改日期-------------------------------------'/
+	add->add:_modifyDate()\n修改日期
+	activate add
+		note over add: this._saleObj.lifeHandle.destroy()删除原日期，"<font color=red><b>"注意：间断日期需要循环删除
+		add->saleA:parent::_addDate()调用父类方法新增日期
+		activate saleA
+		saleA-->add:boolean
+		deactivate saleA
+	deactivate add
+/'------------------------修改日期结束-------------------------------------'/
+	
+	alt _modifyDate()
+		add-->view: 成功返回 status=1
+	else
+		add-->view:errorMsg("日期修改失败");
+	end
+end
+
+deactivate add
+@enduml

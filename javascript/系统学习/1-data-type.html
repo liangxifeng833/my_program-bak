@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html;  charset=utf-8" />
+<title>数据类型练习</title>
+<body>
+<script type="text/javascript">
+//typeof 操作符返回变量的类型字符串
+
+//1,Undefined类型，所以声明变量必须赋值，否则为Undefined类型
+	var box;    
+	console.log(typeof box); //box类型是Undefined类型，值为unfined, 类型返回的字符串是undefined（输出）
+
+//2,Boolean类型,区分大小写，必须是小写true和false,true不一定等于1，false不一定等于0
+	var box=true; 
+	console.log(typeof box); //box类型是Boolean类型，值为true, 类型返回的字符串是boolean
+	console.log(box==1); //输出结果为true box==1
+	console.log(typeof box == typeof 1); //输出结果为false,所以true不一定等于1
+//3,Number类型 , 浮点数值最大精度１７位小数，但是算术运算中可能不精确，所以做判断的时候一定要考虑该问题（最好使用整型做判断）
+	var box = 123;
+	console.log(typeof box); //box类型是Number类型，值为123, 类型返回的字符串是number（输出）
+	console.log(Number.MIN_VALUE); //浮点数最大值
+	console.log(Number.MAX_VALUE); //浮点数最小值
+	console.log(isFinite(box)); //是否超出范围
+
+//3.1 NaN 非数值的意思（Not a Number）是一个特殊的值
+	console.log(0/0); //数学中除数可以为0，被除数不可以为0,这个时候js中返回NaN
+	console.log(12/0); //输出Infinity（表示超出浮点最大值）为正无穷
+	console.log(12/0*0);//输出NaN
+	console.log(Number.NaN)//输出NaN,可以通过该方式得到NaN的值为NaN
+	console.log(NaN*2); //输出NaN,任何与NaN运算的结果都为NaN
+	console.log(NaN==NaN); //输出false,NaN本身不相等
+	console.log(isNaN(0/0));//输出true, isNaN判断是否是NaN
+	var box = {
+		toString:function()
+		{
+			return '123';	
+		}
+	}
+	console.log(isNaN(box)); //输出false, 因为对象中的toString返回是123, 所以对象使用isNaN主要看对象的toString方法返回值
+
+/*3.2 Number(),parseFloat(),ParseInt() 三个函数可以将非数值转换为数值
+ * Number函数是转型函数，可以用于任何数据类型,parseFloat和ParseInt专门用于将字符串转换为数字
+*/	
+	console.log(Number(true));//输出1, Boolean类型的true和false分别转换为1和0
+	console.log(Number(25)); //输出25,数值直接返回
+	console.log(Number(null)); // 输出0,空对象返回0
+	console.log(Number(undefined)); //输出NaN,undefined返回NaN
+	console.log(Number('abc')); //输出NaN
+	console.log(Number('123'));//输出123
+	console.log(Number(0.123)); //输出0.123
+	console.log(parseInt('12abc')); //输出12, 只适用与字符串转换为整形,parseInt(true); //输出NaN
+	console.log(parseFloat('12.1ab'));//输出12.2 只适用于字符串转换为浮点形,parseInt(true); //输出NaN
+	
+//4,String 类型, 单引号和双引号效率相同
+	var box="张三";
+	console.log(typeof box); //box类型是String类型，值为'张三', 类型返回的字符串是string
+    box = box+"hello"; //此时的box是box的副本+hello, 原box销毁, 也就是说变量一旦创建不循序修改, 如果修改则复制后自动销毁原变量
+//4.1 toString()数值转换为字符串 
+    console.log(box.toString());//等效于String(box)
+    var num = 100; 
+    console.log(num.toString(2));//将数字转换为二进制字符串, 转换为其他进制道理一样
+//4.2 String()强制转换为字符串, toString()不能转换null和undefined, 这时可以用String强制转换, String()比toString()强大
+    var a = null; 
+    console.log(String(a)); 
+
+
+
+//5,Object类型,空的对象标志这个对象创建了里面没东西
+	var box={}; //对象字面量的创建方法
+	console.log(typeof box); //box类型是Object类型，值为[Object Object], 类型返回的字符串是object
+    var box = new Object(); //通过new关键字创建对象
+
+    var box = new Object(2); 
+    var age = 100; 
+    console.log(box+age);//输出102, box为object类型, age为number类型, js在做加法的时候执行了内部类型转换
+//5.1穿件number数字对象, 道理和 new String("abc"), new Boolean(true)一样
+    var num = new Number(100); 
+    console.log(num); //num类型为Object, 值为100
+
+//6,Function类型
+	function a()
+	{
+	}
+	console.log(typeof a); //a类型是Function类型，值为function a(){}, 类型返回的字符串是function
+
+//7,Null类型,空对象表示没有创建，就是一个null
+	var box=null; //对象的初始值可以默认为null
+	console.log(typeof box); //box类型是Null类型，值为null, 类型返回的字符串是object
+	console.log(undefined==null); //undefined和null都是空的，所以相等，输出结果为true
+	console.log(undefined===null); //undefined和null都是空的,但数据类型不等，输出结果为false
+	console.log(typeof undefined == typeof null); //undefined和null类型不同，输出结果为false
+
+
+</script>
+</body>
+</html>
+
+
+

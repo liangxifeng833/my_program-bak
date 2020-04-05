@@ -1,0 +1,45 @@
+<!DOCTYPE>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>js 操作浏览器cookie-demo</title>
+</head>
+<body>
+<input type="button" id="setCookie" value="点击设置cookie" /> &nbsp; &nbsp; 
+<input type="button" id="delCookie" value="点击删除cookie" /> <br />
+<script src="http://libs.baidu.com/jquery/1.11.1/jquery.min.js"></script>
+<script>
+    $(document).ready(function() {
+        $("#setCookie").click(function(){
+            setCookie('myTest', 'liangxifeng');
+            alert('myTest cookie 设置成功：'+getCookie('myTest')); 
+        }); 
+        $("#delCookie").click(function(){
+            delCookie('myTest');
+            alert('myTest cookie 删除成功：'+getCookie('myTest')); 
+        })
+    })
+    //设置cookie
+    function setCookie(name,value)
+    {
+        var exp  = new Date();  
+        exp.setTime(exp.getTime() + 30*24*60*60*1000);
+        document.cookie = name + "="+ escape (value) + ";expires=" + exp.toGMTString();
+    }
+    //获取cookie
+    function getCookie(name)
+    {
+        var arr = document.cookie.match(new RegExp("(^| )"+name+"=([^;]*)(;|$)"));
+        if(arr != null) return unescape(arr[2]); return null;
+    }
+    //删除cookie
+    function delCookie(name)
+    {
+        var exp = new Date();
+        exp.setTime(exp.getTime() - 1);
+        var cval=getCookie(name);
+        if(cval!=null) document.cookie= name + "="+cval+";expires="+exp.toGMTString();
+    }
+</script>
+</body>
+</html>

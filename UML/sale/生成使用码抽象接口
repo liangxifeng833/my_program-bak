@@ -1,0 +1,103 @@
+@startuml
+title 生成使用码抽象接口
+actor subClass #red
+/'========================构造方法========================'/
+group 构造方法
+participant "createTicketCodeAbstract\n生成券使用码抽象接口C" as codeA #ADD8E6
+subClass->codeA: __contruct()构造方法
+activate codeA
+	participant "batchAbstract\n券批次抽象接口C" as batchA #ADD8E6
+	codeA->batchA:parrent::__contruct()加载批次抽象类构造方法
+	batchA-->codeA:
+	
+	participant "CreateUseCodeRule\n生成使用码类L" as useCode #FFFFFF
+	codeA->useCode:load使用码对象
+	useCode-->codeA:useCode
+
+		/'===========初始化参数==========='/
+		group 初始化参数	
+			codeA->codeA:_initParam()初始化参数
+			activate codeA
+				note over codeA
+					this._phone =  isset(参数手机号) ? 参数手机号 : 0;
+					this._batchIds = isset(参数批次编号数组) ? 参数批次编号数组 : array();
+					//返回类型赋值，0提取码 1使用码
+					this._returnType =  isset(返回值类型) ? 返回值类型 : 0;		
+				end note
+				
+				alt empty(this._phone ) || empty(this._batchIds ) || empty(this._returnType)
+					codeA-->codeA: false
+				else 参数通过
+					codeA-->codeA: true
+				end 
+			deactivate codeA		
+			alt !_initParam()初始化参数失败
+				codeA-->subClass: errorMsg("初始化参数失败");
+			end
+		end
+deactivate codeA
+end
+
+/'========================调用入口方法========================'/
+group 调用入口方法
+	subClass->codeA:_index()调用入口方法
+	activate codeA
+		/'===========验证批次有效期==========='/
+		group  验证批次信息
+			codeA->codeA:_checkBatch()
+			activate codeA
+				loop this._batchIds循环验证
+					alt 验证数量
+						note over codeA: errorMsg(批次id和该批次需要的电子券的数量必须大于0)
+					end
+					alt 1==this._isCheckShare 如果需要验证转增
+						note over codeA: 验证转赠如果不符合条件则：errorMsg(可以转赠的不能进行发券);
+					end
+					alt 验证批次有效期过期
+						note over codeA: errorMsg(过期错误提示)
+					end				
+					/'----验证是否有满足数量的未发放的券 ----'/
+					participant "tctGet_ticket_main\n事务获取未发放的券DAL" as getTicket #FFFFFF
+					codeA->getTicket:index_get(this._batchIds)调用DAL事务获取未发放的券
+					activate getTicket
+					getTicket-->codeA:ticketObjs
+					deactivate getTicket
+					alt !ticketObjs
+						note over codeA: errorMsg(未用券数量不满足该批次下的所需券数量);
+					end
+					codeA-->codeA:ticketObjs
+				end	
+			deactivate codeA	
+		end
+		/'===========生成使用码==========='/
+		group  生成使用码
+			codeA->codeA:_createUseCode(ticketObjs)生成使用码
+			activate codeA
+				/'----循环生成使用码----'/
+				loop ticketObjs 循环_checkBatch的成功返回值，券数组
+					codeA->useCode:createRule(ticketId,this._phone)
+					useCode-->codeA:tickets
+				end
+				/'----调用DAL事务生成使用码入库----'/
+				codeA->getTicket:index_put(tickets, phone,this.extractCode)
+				activate getTicket			
+				getTicket-->codeA:transRes
+				deactivate getTicket		
+				alt !transRes
+					note over codeA: errorMsg(保存电子券的使用码或提取码失败);
+				end
+				
+				alt 0==this._returnType
+					note over codeA: response(提取码);
+				else
+					note over codeA: response(使用码);
+				end 
+				
+			deactivate codeA
+		end
+		
+	codeA-->subClass:
+	deactivate codeA
+end
+	
+@enduml

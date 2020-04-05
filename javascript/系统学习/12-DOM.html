@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html;  charset=utf-8" />
+<title>文档对象模型DOM进阶</title>
+<body>
+<script type="text/javascript">
+/*********************************************************************************
+  DOM自身有很多类型
+  Node表示所有类型值的统一接口, IE不支持
+
+  Document:文本类型
+  Element:元素节点类型
+  Text:文本类型
+  ...
+
+ *********************************************************************************/
+    window.onload = function(){
+    /*
+     * Node
+     */
+        console.log(Node); //IE不支持
+        //if(***.nodeType  == 1)//表示元素节点
+        ///if(***.nodeType  == 3)//表示文本节点
+        console.log(Node.ELEMENT_NODE); //输出1　标识元素节点类型
+        console.log(Node.TEXT_NODE); //输出3 表示文本节点类型
+    /*
+     * Document类型
+     * 标识文档，或文档根节点，而这个节点是隐藏的，没有具体的元素标签
+     */
+        //alert(document); //显示HTMLDocment
+
+        //以下输出9，表示文档根
+        console.log(document.nodeType); 
+        //以下输出null
+        console.log(document.nodeValue); 
+        //以下输出#document
+        console.log(document.nodeName); 
+        //以下输出10, 表示文档声明, IE理解为注释, IE下输出8
+        console.log(document.childNodes[0].nodeType); 
+        //以下输出html, IE为#document 
+        console.log(document.childNodes[0].nodeName); 
+
+        //以下输出1为元素节点
+        console.log(document.childNodes[1].nodeType); 
+        //以下输出HTML
+        console.log(document.childNodes[1].nodeName); 
+
+        //以下输出HTMLhtmlElement
+        console.log(document.documentElement);
+
+        //获取body标签
+        console.log(document.body)
+
+        //获取文档声明, 输出<!DOCTYPE html>, IE7以下兼容
+        console.log(document.doctype); 
+
+        //获取网页title属性值
+        console.log(document.title); 
+        //给title属性赋值
+        document.title = 'hello'; 
+        //获取当前路径，file:///home/lxf/git/user_liangxifeng833/my_program/javascript/%E7%B3%BB%E7%BB%9F%E5%AD%A6%E4%B9%A0/12-DOM.html
+        console.log(document.URL); 
+        document.URL = 'http://www.baidu.com'; 
+        //alert(document.URL); 
+        
+        //获取域名
+        console.log(document.domain); 
+
+        //获取上一个URL
+        console.log(document.referrer); 
+
+        /*
+         * 获取对象集合
+         */
+        //获取文档中带name属性的<a>元素集合
+        document.anchors; 
+        //获取文档中带href属性的<a>元素集合
+        document.Links; 
+        //获取文档中<form>元素集合
+        document.forms; 
+        //获取文档中<image>元素集合
+        document.images; 
+
+        /*
+         * Element类型
+         * 用于表现HTML中的元素节点
+         * nodeType=1 nodeName=标签名
+         * HTML = HTMLHtmlElement
+         * DIV = HTMLDivElement
+         * BODY = HTMLBodyElement
+         * P = HTMLParamElement
+         */
+
+        /*
+         * Text文本类型
+         * 表示文本节点类型，文本不包含html, 或包含转义的HTML
+         * nodeType = 3
+         * 文本节点还有很多与字符串相似的操作，比如：截取，删除，替换等等
+         */
+        var box = document.getElementById('box'); 
+        var mr = document.createTextNode('Mr.'); 
+        var liang = document.createTextNode('liang'); 
+        box.appendChild(mr); 
+        box.appendChild(liang); 
+        console.log(box.childNodes.length); //合并前输出2
+        //注意创建两个文本节点并向div插入后在获取属于两个单独的节点，这时候需要合并
+        box.normalize(); 
+        console.log(box.childNodes.length); //合并后输出1
+
+        //以索引3为指定位置分割为两个文本节点
+        box.firstChild.splitText(3); 
+        console.log(box.childNodes[0].nodeValue); //输出Mr.
+
+
+
+        /*
+         * Attr属性节点类型
+         * 表示文档元素中的属性
+         * nodeType = 2
+         * nodeName =属性名
+         * nodeValue =属性值
+         */
+
+        //将指定的结点滚动到可见模式
+        //document.getElementById('box').scrollIntoView(); 
+
+        //children属性, 获取子节点, 会忽略空白节点
+        console.log(box.childNodes.length); //输出8
+        console.log(box.children.length);   //输出3
+        console.log(box.children[0].nodeName);   //输出P
+
+        /*
+         * contains() 方法，判断一个是不是另一个节点的后代
+         * 火狐旧版本不支持，3.6
+         * Safari2.X不支持.，3.0以上支持
+         */
+        var p = box.firstChild; 
+        console.log(p.contains(p)); //判断p元素节点后是否包含p标签, 输出true
+
+        /*
+         * DOM操作内容
+         * innerHtml,  获取文本并不过滤html, 推荐使用
+         *
+         * //以下三种不推荐使用
+         * innerText , 获取文本并过滤掉html, 火狐不支持，火狐提供textContent等效与它
+         * outerText , 获取文本并过滤html, 火狐不支持, 在赋值的时候将指定元素标签也去掉了
+         * outerHtml 效果与innerHtml一致，只是赋值的时候后将标签元素抹去
+
+         */
+        // 获取文本并过滤掉html, 以下输出1 2 3, 注意不包含<p>标签, 火狐不支持
+        //innerText赋值的话有html就转义
+        //火狐提供了textContent等效于innerText
+        console.log(box.innerText); 
+        box.innerText='<b>123</b>'; 
+    }
+    //如果IE不兼容Node, 则可以用一下方式创建Node解决
+    if(typeof Node == 'undefined')
+    {
+        //创建一个全局Node
+        window.Node={
+            ELEMENT_NODE:1, 
+            TEXT_NODE:3
+        }; 
+    }
+
+
+</script>
+<div name="divName" id="box">
+    <p>1</p>
+    <p>2</p>
+    <p>3</p>
+</div>
+</body>
+</html>
+

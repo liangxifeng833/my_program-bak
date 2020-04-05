@@ -1,0 +1,42 @@
+{
+  "pages":[
+    "pages/index/index",
+    "pages/lxfTest/test",
+    "pages/lxfTest/form",
+    "pages/logs/logs",
+    "pages/navi/navi",
+    "pages/module/module",
+    "pages/media/media"
+  ],
+  "window":{
+    "navigationBarBackgroundColor": "red",
+    "navigationBarTitleText": "我的测试页",
+    "navigationBarTextStyle": "black",
+    "backgroundColor": "#A60F75",
+    "enablePullDownRefresh": true,
+    "backgroundTextStyle": "dark"
+  },
+  "tabBar": {
+    "list": [{
+      "pagePath": "pages/index/index",
+      "text": "首页",
+      "iconPath": "images/img3.jpg",
+      "selectedIconPath": "images/img4.jpg"
+    },
+    {
+      "pagePath": "pages/module/module",
+      "text": "测试页",
+      "iconPath": "images/img5.jpg",
+      "selectedIconPath": "images/img6.jpg"    
+    },
+    {
+      "pagePath": "pages/navi/navi",
+      "text": "导航",
+      "iconPath": "images/img5.jpg",
+      "selectedIconPath": "images/img6.jpg"    
+    }
+    ],
+    "position":"bottom"
+  },
+  "debug":false
+}

@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html;  charset=utf-8" />
+<title>事件学习</title>
+<body onunload="alert('The onunload event was triggered')">
+<script type="text/javascript">
+/*********************************************************************************
+  javascript有三种事件模型
+    1.内联模型(不建议使用，因为影响了htmlm和js分离原则)
+        <input type="button" value='提交' onclick="box(); "
+    2.脚本模型(建议使用) 
+        //获取input对象
+        var input = document.getElementsBayTagName('input')[0]; 
+        //对象.事件处理函数＝函数名或者匿名函数
+        input.onclick = function(){
+            alert('Lee'); 
+        }
+    3.DOM2模型
+
+  javascript 事件处理函数
+    1.鼠标事件
+        鼠标点击 onclick
+        鼠标双击 ondblclick
+        按下鼠标还未弹起时触发 onmousedown
+        释放鼠标时触发 onmouseup
+        鼠标移到某个元素上方时触发 onmouseover
+        ...
+    2.键盘事件
+        按下键盘上任意键　window.onkeydown
+        按下键盘上的字符键　window.onkeypress
+        释放键盘上的键　window.onkeyup
+    3.HTML事件
+        页面全完加载完毕后在window上触发 window.onload
+        页面全完卸载完毕后在window上触发 window.onunload (比如刷新后触发，经测试google不起作用)
+        用户选择文本框(input或textarea)中一个或多个字符时 onselect
+        当文本框(input/textarea)内容改变且失去焦点 onchange
+        当页面或元素获得焦点时 onfocus
+        当页面或元素失去焦点时 onblur
+        当用户点击提交按钮在form元素上触发 form.onsubmit
+        当用户点击重置按钮时在form元素上触发 form.onreset
+        当窗口或者框架大小变化时在window或框架上触发 window.onresize
+        当用户滚动滚动条时触发 window.onscroll
+
+     事件对象
+        1.事件处理三部分组成：对象.事件处理函数=函数
+            document.onclick = box; 
+            document = 时间触发元素
+            onclick = 事件监听器
+            box = 事件处理函数
+        2.事件对象一般称之为event对象, 该对象是浏览器通过函数把这个对象传递过来
+
+    事件流
+        1.描述从页面接收事件的顺序,当几个都具有事件的元素层叠在一起的时候
+          当点击其中一个元素，并不是只有当前被点击的元素会触发事件，
+          而层叠在你点击范围的所有元素都会触发事件
+        2.事件流包括两种：冒泡和捕获
+        3.从里往外逐个触发叫做冒泡
+          从外往里逐个触发叫做捕获
+ *********************************************************************************/
+    window.onload = function(){
+        var uname = document.getElementById('uname'); 
+        uname.onselect=function()
+        {
+            alert('文本已经选中')
+        }
+        var input = document.getElementsByTagName('input')[0]; 
+
+        /*
+         * W3C的onmouseover和onmouseout
+         */
+        //得到移入uname最近那个DOM对象
+        uname.onmouseover=function(evt){
+            //console.log(evt.relatedTarget);
+            //window.event.fromElement //IE使用该方式与以上效果相同
+            //兼容IE和W3C模式
+            console.log(getTarget(evt)); 
+        }; 
+        //得到从uname移出最近那个DOM对象
+        uname.onmouseout=function(evt){
+            //console.log(evt.relatedTarget);
+            //window.event.toElement //IE使用该方式与以上效果相同
+            //兼容IE和W3C模式
+            console.log(getTarget(evt)); 
+        }; 
+        //阻止默认行为
+        var a=document.getElementById('toBaidu'); 
+        a.onclick=function(evt){
+            //阻止事件冒泡
+            setStop(evt); 
+
+            //W3C 当点击a标签时，阻止跳转的href=www.baidu.com
+            //evt.preventDefault(); 
+            //兼容IE和W3C
+            preDef(evt); 
+            alert(12); 
+        }
+        /*
+         * 上下文菜单事件contextmenu
+         * 当我们右击网页的时候会出现windows自带的菜单
+         * 可以使用contextmenu事件来修改我们指定的菜单, 前提是把右键的默认行为取消
+         * 以下是右击textarea文本框出现自定义的菜单id=menu
+         */
+        var text = document.getElementById('area'); 
+        text.oncontextmenu = function(event){
+            var e = event || window.event; 
+            //阻止默认行为(window自带的右键菜单)
+            preDef(event); 
+            //防止事件冒泡
+            setStop(event)
+            var menu = document.getElementById('menu'); 
+            menu.style.left = e.clientX+'px'; 
+            menu.style.top = e.clientY+'px'; 
+            menu.style.display = 'block'; 
+        }
+
+        /*
+         * 卸载前事件：beforeunload
+         * 在即将离开当前页面(刷新或关闭)时执行 JavaScrip
+         */
+        window.onbeforeunload= function(evt){
+            //preDef(evt); 
+            //document.URL = 'http://www.baidu.com'; 
+            return "确定要离开吗?"; 
+        }
+
+        /*
+         * 鼠标滚轮事件
+         * 分为火狐和非火狐
+         */
+        //非火狐
+        document.onmousewheel = function(evt){
+            var e = evt || window.event; 
+            alert(e.wheelDelta); 
+        }
+        //火狐
+        document.onDOMMouseScroll = function(evt){
+            alert(-evt.detail*30); 
+        }
+
+        /*
+         * 鼠标事件
+         */
+        //注意：如果box改为box(), 就会在onload中自动执行
+        document.onclick=box; 
+        //box函数可以放在onload之外，也可以和input同级
+        function box(event)
+        {
+            document.getElementById('menu').style.display='none'; 
+            //this代表input元素对象
+            console.log(this.value);//输出：按钮 
+            //输出1, box函数参数个数, 即对象事件
+            console.log(arguments.length); 
+            //输出为MouseEvent鼠标点击事件对象
+            //console.log(arguments[0]); 
+            //输出为MouseEvent鼠标点击事件对象
+            //console.log(event); 
+            //兼容IE和其他浏览器
+            var event = event || window.event; 
+            //输出为MouseEvent鼠标点击事件对象
+            console.log(event); 
+            //event.button属性，当鼠标按左键是=0, 点击滚轮=1, 右键=2
+            console.log(event.button); 
+            if(0 == getButton(event))
+            {
+                console.log('左键'); 
+            }else if(1 == getButton(event))
+            {
+                console.log('中键'); 
+            }else
+            {
+                console.log('中键'); 
+            }
+            //可示区坐标
+            console.log('点击处距页面可视区的左边距和上边距='+event.clientX+','+event.clientY); 
+            //非可视区非chrome使用, event.clientX+document.documentElement.scrollTop; 
+            //非可视区chrome使用, event.clientX+document.body.scrollTop; 
+            
+            //屏幕坐标
+            console.log('点击处距屏幕的左边距和上边距='+event.screenX+','+event.screenY); 
+            //获取键盘shift, ctrl, alt键, 注意：不兼容360
+            console.log('点击的同时按'+getKey(event)); 
+
+
+            //event.target点击哪里就可以获取哪里的DOM元素对象　
+            //注意:IE使用event.srcElement; 
+            //alert(event.target); 
+
+            //测试事件流
+            alert('document'); 
+
+        /*
+         * 键盘事件
+         * onkeyup
+         * onkeydown
+         * onkeypress
+         * 键码：
+         *       1.event.keyCode键盘上任意键, 返回的是ASCII的小写字母对应的
+         *       2. 指示返回那个键的值，不认识字母大小写
+         *       3.字母不区分大小写
+         *       4.在所有浏览器都兼容
+         *       5.onkeypress返回keyCode 
+                    5.1chrome和ie浏览器支持，并区大小写
+                    5.2Firefox浏览器把所有字符键返回0
+         *       6.不同浏览器在分好上返回键码不一致
+         * 字符编码：event.charCode, 键盘上可以输出的字符的键
+         */
+            document.onkeypress=function(evt)
+            {
+                var e = evt || window.event;
+                //alert(e.keyCode); 
+                //兼容获取键盘字符编码
+                alert(getCharCode(e));  //输出65
+                //转换为实际字符为
+                alert(String.fromCharCode(getCharCode(e)));//输出A 
+            }
+        }
+
+        /*
+         * 事件流(冒泡)
+         * 以下点击提交按钮后会从里往外，逐个触发submit->testDiv->body->html->document
+         */
+        //点击提交按钮触发
+        document.getElementById('submit').onclick=function(evt)
+        {
+            var e = evt || window.event; 
+            alert('submit button'); 
+            //如果想取消冒泡
+            //e.stopPropagation();   //W3C 非IE取消冒泡
+            //e.cancelBubble = true; //IE取消冒泡
+            //各个浏览器兼容取消冒泡
+            setStop(e); 
+        }
+        //点击测试DIV触发
+        document.getElementById('testDiv').onclick=function()
+        {
+            alert('testDiv'); 
+        }
+        //点击body触发
+        document.body.onclick=function()
+        {
+            alert('body'); 
+        }
+        //点击html触发
+        document.documentElement.onclick=function()
+        {
+            alert('html'); 
+        }
+
+    }
+    //取消冒泡浏览器兼容
+    function setStop(evt)
+    {
+        //兼容IE和其他浏览器
+        var e = evt || window.event; 
+        (typeof e.stopPropagation  == 'function') ? e.stopPropagation() : e.cancelBubble=true; 
+    }
+    //跨浏览器鼠标按钮button
+    function getButton(event)
+    { 
+        //兼容IE和其他浏览器
+        var e = event || window.event; 
+        if(event)
+        {
+            return event.button; 
+        }else if(window.event)//兼容IE
+        {
+            switch(e.button)
+            {
+                case 1:
+                    return 0; 
+                case 4:
+                    return 1; 
+                case 2:
+                    return 2; 
+                case 0://兼容360
+                    return 2; 
+            }
+        }
+    }
+    //获取键盘shift, ctrl, alt键
+    function getKey(event)
+    {
+        //兼容IE和其他浏览器
+        var e = event || window.event; 
+        var keys = []; 
+        if(e.shiftKey) keys.push('shift'); 
+        if(e.ctrlKey) keys.push('ctrl'); 
+        if(e.altKey) keys.push('alt'); //单击+alt与360的快捷键冲突 return keys; 
+    }
+    //兼容获取字符编码
+    function getCharCode(event)
+    {
+        var e = event || window.event; 
+        if(typeof e.charCode  == 'number')
+        {
+            return e.charCode; 
+        }else
+        {
+            return e.keyCode;
+        }
+    }
+    //兼容onmouseout, onmouseover事件对象
+    function getTarget(event)
+    {
+        var e = event || window.event; 
+        if(e.srcElement) //IE
+        {
+            if(e.type == 'mouseover')
+            {
+                return e.fromElement; 
+            }else(e.type == 'mouseout')
+            {
+                return e.toElement;
+            }
+        }else if(e.relatedTarget) //W3C
+        {
+            return e.relatedTarget; 
+        }
+    }
+    //兼容阻止默认行为
+    function preDef(event)
+    {
+        var e = event || window.event; 
+        if(e.preventDefault) //W3C
+        {
+            e.preventDefault(); 
+        }else{ //IE
+            e.returnValue=false; 
+        }
+    }
+</script>
+<input type="button" value="按钮" />
+<div style="width=150px; height:150px; background:orange;">
+    <input type="text" value="hello" id="uname" />
+</div>
+<br>
+
+<a href="http://www.baidu.com" id="toBaidu">百度</a>
+<br>
+<br>
+<br>
+
+<div id="testDiv" style="width:100px; height:100px; background:red; ">
+    测试DIV
+    <input type="button" id="submit" value="提交" />
+</div>
+
+
+<br><br>
+<textarea id="area" rows="3" cols="20">
+    测试右键菜单
+</textarea></textarea>
+
+<ul style="width:50px; height:78px; position:absolute; background:red; display:none;" id="menu">
+    <li>菜单1</li>
+    <li>菜单2</li>
+    <li>菜单3</li>
+</ul
+
+<br>
+<a href="http://www.ljlj.cc">蓝景商城</a>
+
+<p>111</p>
+<p>111</p>
+<p>111</p>
+<p>111</p>
+<p>111</p>
+<p>111</p>
+<p>111</p>
+<p>111</p>
+<p>111</p>
+<p>111</p>
+<p>111</p>
+<p>111</p>
+<p>111</p>
+<p>111</p>
+<p>111</p>
+<p>111</p>
+<p>111</p>
+<p>111</p>
+<p>111</p>
+<p>111</p>
+
+</body>
+</html>

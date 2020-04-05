@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html;  charset=utf-8" />
+<title>基本包装类型</title>
+<body>
+<script type="text/javascript">
+/***********************************************************************************
+  ECMAScript提供了3个特殊的引用类型:Boolean, Number, String
+  这三种类型除了具有本身类型特点外, 还有各自基本类型相应的特殊行为
+/**********************************************************************************/
+
+//1.string是基本类型, 但又是特殊的引用类型, 因为可以调用系统内置的方法
+    var box = "Mr.liang";  //基本类型
+    console.log(box.substring(2)); //输出:.liang
+    console.log("Mr.liang".substring(2)); //输出:.liang
+
+//2.基本类型是无法给自己创建属性和方法, 但是可以调用系统内置方法
+    var box = 'Mr.liang'; //基本类型
+    box.name = 'liang';   //给基本类型加属性
+    box.age = function()  //给基本类型加方法
+    {
+        return 28; 
+    }
+    console.log(box);         //Mt.liang
+    console.log(typeof box);  //string
+    console.log(box.name);    //undefined
+    //box.age();    //出错
+
+//3.使用new运算符, 可以自定义属性和方法, 也可以调用系统内置方法
+//不建议这样的方式创建string
+    var box = new String('Mr.liang'); //String的应用类型
+    box.name = 'zhangsan';   //自定义属性有效
+    box.age = function()  //自定义方法有效
+    {
+        return 28; 
+    }
+    console.log(box);         //Mt.liang
+    console.log(typeof box);  //object
+    console.log(box.name);    //zhangsan
+    console.log(box.age());    //28
+//4.boolean不具备特有的属性和方法
+
+//5.Number类型有一些静态属性(直接通过Number调用属性, 无须new运算符)和方法 
+    var num = 100; 
+    console.log(typeof num.toString()); //toString()将数值转换为字符串
+    console.log(num.toLocaleString()); //将数值转换为字符串本地化
+    console.log(num.toFixed(2)); //小数点保留两位, 并转换为字符串, 四舍五入
+//6.获取长度
+    var box = 'Mr.liang'; 
+    console.log(box.length); //输出8
+//7.返回指定下标的值
+    console.log(box.charAt(1)); //输出:r
+    console.log(box.charCodeAt(1)); //输出r的ascii码
+//8.字符串拼接
+    var box = 'Mr.liang'; 
+    console.log(box.concat(' is ', 'teacher', '!')); //Mr.liangis teacher!
+//9.输出索引下标从4到6之间的字符串, 不包含4和6, 索引从1算起
+    console.log(box.slice(4, 6));//输出ia 
+    console.log(box.substring(4, 6)); //输出:ia, 与上面效果一样
+//10, 字符串截取, 从第4个开始, 选择3个
+    console.log(box.substr(4, 3)); 
+
+    console.log(box.slice(-2));//长度8+(-2) = 6, 输出ng 
+    console.log(box.substring(-2));//负数全部输出:Mr.liang 
+    var box = 'Mr.liang'; 
+//11, 注意 substr(-2), 在IE浏览器下遇到负值会全部返回
+    console.log(box.substr(-2));//长度8+(-2) = 6, 输出ng 
+
+//12, 字符串位置方法
+    var box = 'Mr.liranrg'; 
+    console.log(box.indexOf('r')); //返回从前向后搜索r出现的索引下标, 输出:1
+    console.log(box.lastIndexOf('r')); //返回从后向前搜索r出现的索引下标, 输出:1
+    console.log(box.indexOf('r', 3)); //,从第3个位置开始搜索 , 输出:5
+    console.log(box.lastIndexOf('r',3)); //从3个位置从后向前搜, 输出:1
+    console.log(box.lastIndexOf(', ')); //找不到返回-1
+//13, 大小写转换
+    console.log(box.toLowerCase()); //全部转换为小写
+    console.log(box.toUpperCase()); //全部转换为大写
+//14, 查找
+    console.log(box.match('li')); //找到li, 返回li
+    console.log(box.match(',')); //找不到,  返回null
+    console.log(box.search('l')); //等效于 indexOf, 输出3
+    console.log(box.replace('l', 's')); //找到l并替换为s, Mt.siranrg
+    console.log(box.split('.')); //用.分割字符串为数组
+</script>
+</body>
+</html>
+
+
+

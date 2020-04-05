@@ -1,0 +1,99 @@
+@startuml
+title 后台活动删除（SUC004）
+actor view #red
+participant "saleDel\n活动删除C" as del #00FF00
+view->del: index_delete()
+activate del
+/'========================验参======================================'/
+group 验参
+	note over del
+		验证token
+		活动主键：saleId
+	end note
+	alt empty(salId)
+		del-->view: errorMsg("参数saleId丢失")
+	end
+end
+
+/'========================赋值父类活动对象 _saleObj========================'/
+group 赋值父类活动对象
+	participant "saleAbstract\n活动新增或修改的抽象接口C" as saleA #ADD8E6
+	del->saleA:parent::_getSaleRow(saleId)通过活动表主键获取活动对象
+	activate saleA
+		note over saleA: this._saleObj = obj
+	saleA-->del:无返回值
+	deactivate saleA
+	
+	alt !this._saleObj 
+		del-->view:errorMsg("无要删除的记录");
+	end
+end
+
+/'=======================验证是否绑定批次===================================='/
+group 验证是否绑定批次
+	del->del:_isBindBatch()验证是否绑定批次
+	activate del
+		participant "Ticket_batch\n电子券批次类L" as batch #FFFFFF
+		del->batch: 通过Rest方式查询批次where条件为活动编号
+		activate batch
+		batch-->del: batchObj
+		deactivate batch
+	del-->del:boolean
+	deactivate del
+	
+	alt _isBindBatch() 如果已绑定批次
+		del-->view: errorMsg("已绑定批次不能删除")
+	end
+end
+
+/'========================调用父类方法验证是否可以删除========================'/
+group 调用父类方法验证是否可以删除
+	del->saleA:parent::_checkDate()验证是否可以删除
+	activate saleA
+		participant "Sale_wechat\n活动主表类L" as saleL #FFFFFF
+		/'-------------------活动是否开始-----------------------------------------'/
+		saleA->saleL: this.saleObj.isStart()活动是否开始
+		saleL-->saleA:boolean
+		alt this.saleObj.isStart() 已经开始
+			saleA-->del: 'stared'
+		end
+		
+		/'-------------------活动是否结束-----------------------------------------'/
+		saleA->saleL: this.saleObj.isExpire()活动是否过期
+		saleL-->saleA:boolean
+		alt this.saleObj.isExpire() 已经过期
+			saleA-->del: 'expired'
+		end
+		saleA-->del: 'ok'
+	deactivate saleA
+	
+	alt 'ok' != _checkDate()
+		del-->view: errorMsg("活动已开始或已过期");
+	end
+end
+	
+/'=======================删除活动以活动日期对象========================'/
+group 删除活动以活动日期对象
+	/'-------------------删除活动操作-----------------------------------------'/
+	del->saleL:this._saleObj.destroy()销毁活动对象
+	activate saleL
+	saleL-->del: delRes	
+	deactivate saleL
+	
+	/'-------------------删除活动日期操作-----------------------------------------'/
+	alt 'sucess' == delRes
+		del->saleL: this._saleObj.lifeHandle.destroy()
+		activate saleL
+		saleL-->del: delDateRes
+		deactivate saleL
+	end
+	
+	alt delDateRes
+		del-->view: status = 1 删除成功
+	else
+		del-->view: errorMsg("删除日期失败")
+	end
+end
+deactivate del
+del-->view:
+@enduml

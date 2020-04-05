@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html;  charset=utf-8" />
+<title>动态加载js和css</title>
+<body>
+<script type="text/javascript">
+    window.onload = function(){
+        //动态加载js脚本
+        var script = document.createElement('script'); 
+        script.type = 'text/javascript'; 
+        script.src = 'test.js'; 
+        document.getElementsByTagName('head')[0].appendChild(script); 
+
+        //动态执行脚本
+        var script = document.createElement('script'); 
+        script.type = 'text/javascript'; 
+        script.text = "alert('hello')"; 
+        document.getElementsByTagName('head')[0].appendChild(script); 
+
+        //动态加载css
+        var link = document.createElement('link'); 
+        link.rel='stylesheet'; 
+        link.type='text/css'; 
+        link.href='test.css'; 
+        document.getElementsByTagName('head')[0].appendChild(link); 
+
+        //动态执行css
+        var style = document.createElement('style'); 
+        style.type='text/css'; 
+        //IE不支持
+        style.appendChild(document.createTextNode('#box{width:200px; height:500px; background:red;}')); 
+        document.getElementsByTagName('head')[0].appendChild(style); 
+    }
+</script>
+<div name="divName" id="box">
+    <p>1</p>
+    <p>2</p>
+    <p>3</p>
+</div>
+</body>
+</html>
+

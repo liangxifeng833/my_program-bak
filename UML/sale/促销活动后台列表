@@ -1,0 +1,50 @@
+@startuml
+title 后台活动列表（SUC001）
+actor view #red
+participant "saleList\n活动列表C" as list #00FF00
+view->list: index_get()
+activate list
+	/'=============================接收参数================================='/
+	group 接收参数
+		note over list: 接收参数\n验证token\n组装where条件
+	end
+
+	/'=============================查询主表================================='/
+	group 查询主表
+		participant "Sale_wechat\n活动主表类L" as saleL #FFFFFF
+			list->saleL: 根据where通过Rest获取活动对象 \n "<font color=red> <b>"注意：附加加载初始化对应日期对象
+		activate saleL
+			saleL-->list:saleObj
+		deactivate saleL
+	end
+	
+		/'=============================循环活动主表对象================================='/
+	loop 循环活动主表对象 saleObj
+	   participant "operator\nmis用户DAL" as DAL
+		list->DAL: 根据操作人id查询操作人姓名
+		activate DAL
+		DAL-->list:userObj
+		deactivate DAL
+		
+		note over list:组合返回操作人姓名：userName	
+		
+		/'-------检查开始或过期状态-------'/
+		list->list:_getDateStatus(saleObj)获取活动日期状态
+		activate list
+			alt saleObj.isStart() &&  !saleObj.isExpire()
+				note over list: returnVal = '已开始';
+			else !saleObj.isStart()
+				note over list: returnVal = '未开始';
+			else
+				note over list: returnVal = '活动结束';
+			end
+		list-->list: returnVal
+		deactivate list
+		
+		/'-------组合活动状态-------'/
+		note over list: 组合活动日期状态 dateStatus = returnVal	
+	end
+list-->view:json
+deactivate list
+
+@enduml
